@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 
-export default function(sequelize) {
+export default function (sequelize) {
   const Income = sequelize.define('Income', {
     income_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     amount: { type: DataTypes.DECIMAL, allowNull: false },
@@ -10,7 +10,7 @@ export default function(sequelize) {
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
   }, { tableName: 'income', timestamps: false });
 
-  Income.associate = function(models) {
+  Income.associate = (models) => {
     Income.belongsTo(models.User, { foreignKey: 'user_id' });
   };
 

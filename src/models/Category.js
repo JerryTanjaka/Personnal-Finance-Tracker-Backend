@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 
-export default function(sequelize) {
+export default function (sequelize) {
   const Category = sequelize.define('Category', {
     category_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING, allowNull: false },
@@ -8,7 +8,7 @@ export default function(sequelize) {
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
   }, { tableName: 'category', timestamps: false });
 
-  Category.associate = function(models) {
+  Category.associate = (models) => {
     Category.hasMany(models.Expense, { foreignKey: 'category_id' });
   };
 
