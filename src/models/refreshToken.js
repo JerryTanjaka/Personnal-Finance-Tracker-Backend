@@ -7,13 +7,19 @@ export default (sequelize) => {
     {
       id: {
         type: DataTypes.INTEGER,
-        defaultValue: DataTypes.UUIDV4,
+        autoIncrement: true,
         primaryKey: true,
       },
       token: {
-        type: DataTypes.STRING(512),
+        type: DataTypes.TEXT,
         allowNull: false,
         unique: true,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'user_id',        
+        references: { model: 'users', key: 'id' },
       },
       expires_at: {
         type: DataTypes.DATE,
@@ -29,6 +35,7 @@ export default (sequelize) => {
       sequelize,
       tableName: 'refresh_tokens',
       modelName: 'RefreshToken',
+      timestamps: true,          
     }
   );
 
