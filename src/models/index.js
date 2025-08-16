@@ -17,7 +17,7 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 
 // Import du fichier config.json
-import configFile from "../config/config" assert { type: "json" };
+import configFile from "../config/config.js";
 const config = configFile[env];
 
 const db = {};
