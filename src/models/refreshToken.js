@@ -6,7 +6,7 @@ export default (sequelize) => {
   RefreshToken.init(
     {
       id: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
@@ -15,7 +15,7 @@ export default (sequelize) => {
         allowNull: false,
         unique: true,
       },
-      expiresAt: {
+      expires_at: {
         type: DataTypes.DATE,
         allowNull: false,
       },

@@ -1,21 +1,9 @@
-import { Router } from 'express';
-import db from '../models/index.js';
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
+import express from 'express';
+import { login, registerUser } from '../controllers/auth.controller.js';
 
-const router = Router();
+const auth = express.Router()
 
-const issueTokens = async (user) => {
-    const accessToken = signAccessToken({ sub: user.id, email: user.email });
-    const refreshToken = signRefreshToken({ sub: user.id });
+auth.post("/sign", registerUser)
+auth.post("/login", login)
 
-    const decoded = verifyRefreshToken(refreshToken); 
-    const expiresAt = new Date(decoded.exp * 1000);
-
-    await db.RefreshToken.create({
-        token: refreshToken,
-        userId: user.id,
-        expiresAt,
-    });
-
-    return { accessToken, refreshToken };
-}
+export default auth

@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 
 class User extends Model {
   async checkPassword(plain) {
-    return bcrypt.compare(plain, this.passwordHash);
+    return bcrypt.compare(plain, this.password);
   }
 }
 
@@ -12,16 +12,21 @@ export default (sequelize) => {
     {
       id: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
+        autoIncrement: true,
       },
-      name: {
+      email: {
         type: DataTypes.STRING(255),
-        allowNull: false
+        allowNull: false,
+        unique: true,
       },
       password: {
         type: DataTypes.STRING(255),
         allowNull: false,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('NOW()'),
       },
     },
     {
@@ -29,14 +34,15 @@ export default (sequelize) => {
       tableName: 'users',
       modelName: 'User',
       hooks: {
-        // supporte creation via { password: '...' }
-        beforeValidate: async (user) => {
-          if (user.password && !user.passwordHash) {
+        beforeCreate: async (user) => {
+          if (user.password) {
             const saltRounds = 10;
-            user.passwordHash = await bcrypt.hash(user.password, saltRounds);
+            user.password = await bcrypt.hash(user.password, saltRounds);
           }
         },
       },
+      timestamps: false,
+      underscored: true,
     }
   );
 

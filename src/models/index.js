@@ -12,7 +12,7 @@ db.RefreshToken = refreshTokenFactory(sequelize);
 // Associations
 // 1 User -> N RefreshTokens
 
-db.User.hasMany(db.RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
-db.RefreshToken.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+db.User.hasMany(db.RefreshToken, { foreignKey: 'user_id', as: 'refresh_tokens' });
+db.RefreshToken.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
 
 export default db;
