@@ -6,10 +6,6 @@ export default {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
-    dialect: 'postgres',
+    dialect: process.env.DB_DIALECT || 'postgres',
   },
-  production: {
-    use_env_variable: 'DATABASE_URL',
-    dialect: 'postgres'
-  }
 };
