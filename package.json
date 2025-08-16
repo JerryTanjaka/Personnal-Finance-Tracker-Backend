@@ -2,10 +2,12 @@
   "name": "postgress_manipulation_sequelize",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "sync": "node src/sync.js"
-  },
   "type": "module",
+  "scripts": {
+    "sync": "node src/sync.js",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
