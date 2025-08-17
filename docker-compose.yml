@@ -5,9 +5,9 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "king aff"
-      POSTGRES_DB: sequelizedb
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5433:5432"   # localhost:5433 → container:5432
     volumes:
@@ -18,15 +18,15 @@ services:
     restart: always
     command: npm run dev
     volumes:
-      - .:/app:delegated   # Monte seulement le code, node_modules reste dans l'image
+      - .:/app:delegated
     working_dir: /app
     ports:
       - "3000:3000"
     environment:
-      DB_HOST: db
-      DB_USER: postgres
-      DB_PASSWORD: "king aff"
-      DB_NAME: sequelizedb
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     depends_on:
       - db
 
