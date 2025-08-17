@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: "king aff"
       POSTGRES_DB: sequelizedb
     ports:
-      - "5433:5432"
+      - "5433:5432"   # localhost:5433 → container:5432
     volumes:
       - db_data:/var/lib/postgresql/data
 
