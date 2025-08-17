@@ -10,6 +10,8 @@ Un projet backend Node.js + Express + Sequelize avec PostgreSQL, exécuté dans 
 ```bash
 git clone https://github.com/ton-compte/ton-projet.git
 cd ton-projet
+npm install
+
 ```
 
 ---
