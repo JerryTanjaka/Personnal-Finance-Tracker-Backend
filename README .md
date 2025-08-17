@@ -64,7 +64,7 @@ Expense route works!
 ### 6. Tester la base de données PostgreSQL
 Connexion en local :
 ```bash
-psql -h localhost -p 5433 -U postgres -d sequelizedb
+psql -h localhost -p 5433 -U postgres -d expensedb
 ```
 
 Mot de passe :  
