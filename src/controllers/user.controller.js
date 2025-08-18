@@ -47,3 +47,17 @@ export const login = async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 };
+export const me = async (req, res) => {
+  try {
+    const { id, email } = req.user; 
+    const user = await User.findByPk(id, {
+      attributes: ["id", "email", "created_at"], 
+    });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

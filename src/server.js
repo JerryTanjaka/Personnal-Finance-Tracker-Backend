@@ -1,4 +1,5 @@
 // server.js (ou index.js)
+
 import express from "express";
 import dotenv from "dotenv";
 import db from "./models/index.js"; // Sequelize + modèles
@@ -16,8 +17,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Routes
-app.use("/users", userRoutes);
-app.use("/expenses", expenseRoutes);
+app.use("/api", userRoutes);
+app.use("/api", expenseRoutes);
 
 // Route de test
 app.get("/", (req, res) => res.send("API is running"));
