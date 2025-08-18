@@ -3,11 +3,11 @@ import express from "express";
 import dotenv from "dotenv";
 import db from "./models/index.js"; // Sequelize + modèles
 
+dotenv.config();
 // Importer vos fichiers de routes
 import userRoutes from "./routes/user.route.js";
 import expenseRoutes from "./routes/expense.route.js";
 
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

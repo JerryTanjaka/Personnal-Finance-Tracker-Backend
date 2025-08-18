@@ -4,9 +4,11 @@ import pkg from 'pg';
 import db from './models/index.js';
 const { sequelize } = db;
 import configFile from './config/config.js';
+import dotenv from "dotenv";
+dotenv.config(); 
 
 const { Client } = pkg;
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV ;
 const config = configFile[env];
 
 const createDatabaseIfNotExists = async () => {
