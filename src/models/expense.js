@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, UUIDV4 } from "sequelize";
 
 class Expense extends Model { };
 
@@ -6,8 +6,8 @@ export default (sequelize) => {
     Expense.init(
         {
             id: {
-                type: DataTypes.INTEGER,
-                autoIncrement: true,
+                type: DataTypes.UUID,
+                defaultValue: sequelize.literal('gen_random_uuid()'),
                 primaryKey: true
             },
             amount: {
@@ -24,12 +24,15 @@ export default (sequelize) => {
             },
             description: {
                 type: DataTypes.TEXT,
-                allowNull: false
+                allowNull: true
             },
-            created_at: {
+            start_date: {
                 type: DataTypes.DATE,
-                defaultValue: sequelize.literal("NOW()"),
-                allowNull: false
+                allowNull: true
+            },
+            end_date: {
+                type: DataTypes.DATE,
+                allowNull: true
             }
         },
         {

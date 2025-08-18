@@ -1,4 +1,4 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, UUIDV4 } from 'sequelize';
 import bcrypt from 'bcrypt';
 
 class User extends Model {
@@ -11,9 +11,9 @@ export default (sequelize) => {
   User.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: sequelize.literal('gen_random_uuid()'),
         primaryKey: true,
-        autoIncrement: true,
       },
       email: {
         type: DataTypes.STRING(255),

@@ -23,17 +23,15 @@ db.RefreshToken.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
 
 // Expenses assosiations
 db.Expense.belongsTo(db.User, {
-    foreignKey: 'user_id',
+    foreignKey: {name: 'user_id', allowNull: false},
     targetKey: 'id',
-    keyType: DataTypes.INTEGER,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
 });
 db.Expense.belongsTo(db.Category, {
-    foreignKey: 'category_id',
+    foreignKey: { name: 'category_id', allowNull: true },
     as: 'category_fk',
     targetKey: 'id',
-    keyType: DataTypes.INTEGER,
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE'
 });
@@ -41,9 +39,8 @@ db.Expense.belongsTo(db.Category, {
 
 // Category assiciations
 db.User.hasMany(db.Category, {
-    foreignKey: "user_id",
+    foreignKey: {name: 'user_id', allowNull: true},
     sourceKey: 'id',
-    keyType: DataTypes.INTEGER,
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE'
 });

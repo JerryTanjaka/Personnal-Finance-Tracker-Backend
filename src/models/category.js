@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes, UUIDV4 } from "sequelize";
 import sequelize from "../config/db.js";
 
 class Category extends Model { };
@@ -7,8 +7,8 @@ export default (sequelize) => {
     Category.init(
         {
             id: {
-                type: DataTypes.INTEGER,
-                autoIncrement: true,
+                type: DataTypes.UUID,
+                defaultValue: sequelize.literal('gen_random_uuid()'),
                 primaryKey: true
             },
             name: {
