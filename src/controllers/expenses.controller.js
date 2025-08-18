@@ -49,8 +49,11 @@ const getAllExpenses = async (req, res) => {
 }
 
 const getSpecificExpense = async (req, res) => {
+    const { id } = req.params
+
+    if (id.replaceAll('-', '').length !== 32) return res.status(400).json('Invalid expense ID')
+
     try {
-        const { id } = req.params
 
         const queryAnswer = await db.Expense.findOne({
             where: { id: id },
@@ -79,14 +82,12 @@ const createExpense = async (req, res) => {
         return res.status(400).json({ message: 'Missing field' })
     }
 
-    console.log(req.user)
-
     try {
         const userUUID = ''
 
-        const newExpense = await db.Expense.create({ user_id, amount, expense_date, category_id, description, type, start_date, end_date })
+        const newExpense = await db.Expense.create({ user_id: userUUID, amount, expense_date, category_id, description, type, start_date, end_date })
 
-        return res.status(201).json({ Expense: { user_id, amount, expense_date, category_id, description, type, start_date, end_date }, message: 'Expense created' })
+        return res.status(201).json({ Expense: { user_id: userUUID, amount, expense_date, category_id, description, type, start_date, end_date }, message: 'Expense created' })
 
     } catch (err) { return res.status(500).json({ message: 'Server error', error: err.message }) }
 }
@@ -109,6 +110,18 @@ const updateExpense = async (req, res) => {
         .then(() => res.status(200).json(currentExpense))
         .catch(err => res.status(500).json({ message: 'Failed to apply changes', error: err }))
 }
-const deleteExpense = async (req, res) => { }
+
+const deleteExpense = async (req, res) => {
+    const { id } = req.params;
+
+    if (id.replaceAll('-', '').length !== 32) return res.status(400).json('Invalid expense ID')
+
+    try {
+        const deleteExpense = await db.Expense.destroy({ where: { id: id } })
+        return (deleteExpense) ? res.status(200).json('Deletion successful') : res.status(400).json('No expense with such ID')
+    } catch (err) {
+        return res.status(500).json({ message: 'Failed to delete the record', error: err.message })
+    }
+}
 
 export { getAllExpenses, getSpecificExpense, createExpense, updateExpense, deleteExpense }
