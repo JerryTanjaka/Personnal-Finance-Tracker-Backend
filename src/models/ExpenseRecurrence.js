@@ -6,7 +6,6 @@ export default (sequelize) => {
     expense_id: { type: DataTypes.INTEGER, allowNull: false, unique: true }, // une récurrence par dépense
     start_date: { type: DataTypes.DATEONLY, allowNull: false },
     end_date: { type: DataTypes.DATEONLY, allowNull: true }, // null = “ongoing”
-    // optionnel: ajoute si tu veux plus tard
     // frequency: { type: DataTypes.STRING, allowNull: false, defaultValue: 'monthly' },
   }, { tableName: 'expense_recurrence', timestamps: false });
 
