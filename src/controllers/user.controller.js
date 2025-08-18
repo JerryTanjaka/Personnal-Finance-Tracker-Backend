@@ -6,6 +6,9 @@ import jwt from "jsonwebtoken";
 
 import db from "../models/index.js";
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 const { User } = db;
 
 export const signup = async (req, res) => {
