@@ -1,5 +1,5 @@
 import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/db";
+import sequelize from "../config/db.js";
 
 class Category extends Model { };
 
@@ -22,18 +22,16 @@ export default (sequelize) => {
             created_at: {
                 type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: sequelize.literal('NOW()')
+                defaultValue: sequelize.literal("NOW()")
             },
-            user_id: {
-                type: DataTypes.INTEGER,
-                references: { model: 'users', key: 'id'}
-            }
         },
         {
             sequelize,
             tableName: 'categories',
             modelName: 'Category',
-            timestamps: true
+            timestamps: false
         }
-    )
+    );
+
+    return Category;
 }
