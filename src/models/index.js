@@ -24,6 +24,7 @@ db.RefreshToken.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
 // Expenses assosiations
 db.Expense.belongsTo(db.User, {
     foreignKey: {name: 'user_id', allowNull: false},
+    as: 'user_fk',
     targetKey: 'id',
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'

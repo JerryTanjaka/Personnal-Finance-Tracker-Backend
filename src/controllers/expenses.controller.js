@@ -15,7 +15,7 @@ const getAllExpenses = async (req, res) => {
             errorList.push['Invalid end date format']
             end = new Date(Date.now())
         }
-        conditions.created_at = { [Op.between]: [start, end] }
+        conditions.expense_date = { [Op.between]: [start, end] }
 
         if (category && typeof (Number(category)) != 'number') errorList.push('Invalid category, must be a number')
         if (category && typeof (Number(category)) === 'number') {
@@ -27,10 +27,18 @@ const getAllExpenses = async (req, res) => {
             conditions.type = type
         }
 
-        if (errorList.length > 0) return res.status(401).json({ message: 'Invalid field:', error: errorList })
+        if (errorList.length > 0) return res.status(400).json({ message: 'Invalid field:', error: errorList })
 
         const queryAnswer = await db.Expense.findAll({
             where: { [Op.and]: conditions },
+            include: [{
+                association: 'category_fk',
+                attributes: ["name"]
+            }, {
+                association: 'user_fk',
+                attributes: ["email"]
+            }
+            ]
         })
         return res
             .status(200)
@@ -45,20 +53,62 @@ const getSpecificExpense = async (req, res) => {
         const { id } = req.params
 
         const queryAnswer = await db.Expense.findOne({
-            where: { id: Number(id) },
+            where: { id: id },
+            include: [{
+                association: 'category_fk',
+                attributes: ["name"]
+            }, {
+                association: 'user_fk',
+                attributes: ["email"]
+            }
+            ],
         })
         return res
             .status(200)
-            .json(queryAnswer || [])
+            .json(queryAnswer || 'No such expense')
     } catch (err) {
-        return res.status(500)
+        return res.status(500).json({ message: err.message })
     }
 }
 
-const createExpense = async (req, res) => { }
 
-const updateExpense = async (req, res) => { }
+// IMPORTANT: Need to get the user UUID from Authentification (requireAuth cannot pass it)
+const createExpense = async (req, res) => {
+    const { amount, expense_date, category_id, description, type, start_date, end_date } = req.body
+    if (!(amount && expense_date && category_id && description && type && start_date && end_date)) {
+        return res.status(400).json({ message: 'Missing field' })
+    }
 
+    console.log(req.user)
+
+    try {
+        const userUUID = ''
+
+        const newExpense = await db.Expense.create({ user_id, amount, expense_date, category_id, description, type, start_date, end_date })
+
+        return res.status(201).json({ Expense: { user_id, amount, expense_date, category_id, description, type, start_date, end_date }, message: 'Expense created' })
+
+    } catch (err) { return res.status(500).json({ message: 'Server error', error: err.message }) }
+}
+
+const updateExpense = async (req, res) => {
+    const { id } = req.params
+
+    if (id.replaceAll('-', '').length !== 32) return res.status(400).json('Invalid expense ID')
+
+    const currentExpense = await db.Expense.findOne({ where: { id: id } });
+    if (!currentExpense) return res.status(400).json('No match found')
+
+    for (const field in currentExpense.toJSON()) {
+        if (field in req.body) {
+            currentExpense[field] = req.body[field]
+        }
+    }
+
+    currentExpense.save()
+        .then(() => res.status(200).json(currentExpense))
+        .catch(err => res.status(500).json({ message: 'Failed to apply changes', error: err }))
+}
 const deleteExpense = async (req, res) => { }
 
 export { getAllExpenses, getSpecificExpense, createExpense, updateExpense, deleteExpense }
