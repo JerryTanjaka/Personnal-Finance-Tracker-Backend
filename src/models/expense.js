@@ -18,8 +18,8 @@ export default (sequelize) => {
                 type: DataTypes.DATE,
                 allowNull: false
             },
-            type: {
-                type: DataTypes.STRING(255),
+            is_recurrent: {
+                type: DataTypes.BOOLEAN,
                 allowNull: false
             },
             description: {
