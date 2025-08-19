@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json())
 
 app.use("/api/auth", auth)
-app.use("/api/expenses", expenses)
+app.use("/api/expenses", requireAuth, expenses)
 
 app.listen(PORT, () => {
   console.log(`Server is listen on port ${PORT}`);

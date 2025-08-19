@@ -4,7 +4,7 @@ import db from '../models/index.js';
 
 const usersMock = [
   {
-    id: uuidv4(),
+    id: 'e6cc16af-12db-4954-a56f-2866abaa44b6',
     email: 'john.doe@example.com',
     password: 'password123',
     createdAt: new Date(),
@@ -19,7 +19,7 @@ const usersMock = [
 
 const categoriesMock = [
   {
-    id: uuidv4(),
+    id: '7733b095-fb2a-4129-b185-3b55a2ae0879',
     name: 'Groceries',
     is_default: true,
     created_at: new Date(),
@@ -41,7 +41,7 @@ const categoriesMock = [
 
 const expensesMock = [
   {
-    id: uuidv4(),
+    id: '4b266be3-a6aa-412c-8a17-ef0b8017e99b',
     amount: 50.25,
     expense_date: new Date(),
     is_recurrent: false,
