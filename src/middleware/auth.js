@@ -1,6 +1,6 @@
 import { verifyAccessToken } from '../utils/jwt.js';
 
-export const requireAuth = (req, res, next) => {
+const requireAuth = (req, res, next) => {
   const auth = req.headers.authorization || '';
   const [scheme, token] = auth.split(' ');
 
@@ -16,3 +16,5 @@ export const requireAuth = (req, res, next) => {
     return res.status(401).json({ message: 'Token invalide ou expiré' });
   }
 };
+
+export default requireAuth;

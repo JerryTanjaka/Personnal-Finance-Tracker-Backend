@@ -31,13 +31,8 @@ export const registerUser = async (req, res) => {
         const exists = await db.User.findOne({ where: { email } });
         if (exists) return res.status(409).json({ message: 'email already used' });
 
-        // try {
-            
-            const user = await db.User.create({ email, password });
-            const userTokens = await issueTokens(user);
-        // } catch (error) {
-        //     res.status(500).json({ e: error, a: "is here" })
-        // }
+        const user = await db.User.create({ email, password });
+        const userTokens = await issueTokens(user);
 
         return res
             .status(201)
