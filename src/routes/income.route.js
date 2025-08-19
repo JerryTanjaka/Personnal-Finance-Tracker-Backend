@@ -1,12 +1,12 @@
 import express from "express";
-import { auth } from "../middleware/auth.js"; 
-import * as incomeController from "../controllers/incomeController.js";
+import requireAuth from "../middleware/auth.js"; 
+import * as incomeController from "../controllers/income.controller.js";
 
-const router = express.Router();
+const incomeRoute = express.Router();
 
-router.get("/", auth, incomeController.getIncomes);
-router.get("/:id", auth, incomeController.getIncomeById);
-router.post("/", auth, incomeController.createIncome);
-router.put("/:id", auth, incomeController.updateIncome);
-router.delete("/:id", auth, incomeController.deleteIncome);
-export default router;
+incomeRoute.get("/", requireAuth, incomeController.getIncomes);
+incomeRoute.get("/:id", requireAuth, incomeController.getIncomeById);
+incomeRoute.post("/", requireAuth, incomeController.createIncome);
+incomeRoute.put("/:id", requireAuth, incomeController.updateIncome);
+incomeRoute.delete("/:id", requireAuth, incomeController.deleteIncome);
+export default incomeRoute;
