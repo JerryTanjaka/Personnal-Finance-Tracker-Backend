@@ -16,3 +16,16 @@ export const getIncomes = async (req, res) => {
   }
 };
 
+export const getIncomeById = async (req, res) => {
+  try {
+    const income = await Income.findOne({
+      where: { id: req.params.id, user_id: req.user.id },
+    });
+
+    if (!income) return res.status(404).json({ message: "Income not found" });
+    res.json(income);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching income", error: error.message });
+  }
+};
+
