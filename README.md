@@ -7,16 +7,15 @@
 
 This repository contains the backend implementation for the Personal Finance Tracker Web 2 project. It serves as the server-side component responsible for handling data management, user authentication, and business logic for the personal finance tracking application.
 
+If you want to have the Frontend of the project, visit the link below :
+   https://github.com/Gwynbleidd344/Personnal-Finance-Tracker-Frontend.git
+
 ## Table of Contents
 
 - [About](#about)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Installation](#installation)
-- [Usage](#usage)
-- [Folder Structure](#folder-structure)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## About
 
@@ -34,9 +33,8 @@ The Personal Finance Tracker Backend is designed to provide a robust and scalabl
 
 - **Programming Language**: JavaScript (Node.js)
 - **Framework**: Express.js
-- **Database**: [Specify your database, e.g., MongoDB, PostgreSQL]
-- **Authentication**: [Specify authentication method, e.g., JWT, OAuth]
-- **Other Tools**: [List any other tools or libraries used]
+- **Database**: Postgresql
+- **Authentication**: JWT
 
 ## Installation
 
