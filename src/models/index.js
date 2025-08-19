@@ -3,6 +3,7 @@ import userFactory from './user.js';
 import refreshTokenFactory from './refreshToken.js';
 import expenseFactory from './expense.js'
 import categoryFactory from './category.js';
+import receiptFactory from './receipt.js';
 import createMocks from '../data/mocks.js';
 
 const db = {};
@@ -13,6 +14,7 @@ db.User = userFactory(sequelize);
 db.RefreshToken = refreshTokenFactory(sequelize);
 db.Expense = expenseFactory(sequelize);
 db.Category = categoryFactory(sequelize)
+db.Receipt = receiptFactory(sequelize);
 
 // Associations
 // 1 User -> N RefreshTokens
@@ -38,13 +40,18 @@ db.Expense.belongsTo(db.Category, {
 });
 
 
-// Category assiciations
+// Category associations
 db.User.hasMany(db.Category, {
     foreignKey: { name: 'user_id', allowNull: true },
     sourceKey: 'id',
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE'
 });
+
+// Receipt associations
+db.Receipt.belongsTo(db.User, { foreignKey: {name:'user_id', allowNull: false}, targetKey: 'id', as: 'user_fk', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+db.Receipt.hasOne(db.Expense, { foreignKey: {name:'receipt_id', allowNull: true}, sourceKey: 'id', as: 'receipt_fk', onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+
 
 await sequelize.sync({ alter: true, force: true })
 
