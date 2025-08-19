@@ -6,7 +6,6 @@ const router = Router();
 
 router.post("/auth/signup", userController.signup);
 router.post("/auth/login", userController.login);
-router.get("/dashboard",user)
 router.get("/auth/me", authMiddleware, userController.me);
 export default router;
 
