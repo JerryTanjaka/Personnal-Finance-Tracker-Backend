@@ -8,7 +8,6 @@ export default (sequelize) => {
         {
             id: {
                 type: DataTypes.UUID,
-                defaultValue: sequelize.literal('gen_random_uuid()'),
                 primaryKey: true
             },
             file_path: {
@@ -28,6 +27,6 @@ export default (sequelize) => {
             timestamps: false
         }
     );
-    
+
     return Receipt
 }

@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 import db from "../models/index.js";
+import { deleteReceiptOnFail } from "../middleware/uploadReceipt.js";
 
 const getAllExpenses = async (req, res) => {
     const userUUID = req.user.id
@@ -77,11 +78,14 @@ const getSpecificExpense = async (req, res) => {
 }
 
 
-// IMPORTANT: Need to get the user UUID from Authentification (requireAuth cannot pass it)
 const createExpense = async (req, res) => {
     let { amount, expense_date, category_id, description, is_recurrent, start_date, end_date } = req.body
 
+    amount = parseInt(amount)
+    is_recurrent = is_recurrent.toLowerCase().includes("true")
+
     if (!(amount && expense_date && category_id)) {
+        if (req.file) deleteReceiptOnFail(req.file.path)
         return res.status(400).json({ message: 'Missing field', field: Object.keys(req.body).filter(field => !req.body[field]) })
     }
 
@@ -91,17 +95,28 @@ const createExpense = async (req, res) => {
     }
 
     if (is_recurrent && !start_date) {
+        if (req.file) deleteReceiptOnFail(req.file.path)
         return res.status(400).json({ message: 'Recurrent expense must have a valid start date' })
     }
 
     try {
         const userUUID = req.user.id
 
-        const newExpense = await db.Expense.create({ user_id: userUUID, amount, expense_date, category_id, description, is_recurrent, start_date, end_date })
+        let receipt_id = null
 
-        return res.status(201).json({ message: 'Expense created', Expense: { user_id: userUUID, amount, expense_date, category_id, description, is_recurrent, start_date, end_date } })
+        if (req.file) {
+            receipt_id = req.file.filename.split('.')[0]
+            await db.Receipt.create({ id: receipt_id, file_path: req.file.path, user_id: userUUID })
+        }
 
-    } catch (err) { return res.status(500).json({ message: 'Server error', error: err.message }) }
+        const newExpense = db.Expense.create({ user_id: userUUID, amount, expense_date, category_id, description, is_recurrent, start_date, end_date, receipt_id })
+
+        return res.status(201).json({ message: 'Expense created', Expense: { user_id: userUUID, amount, expense_date, category_id, description, is_recurrent, start_date, end_date, receipt_id: receipt_id } })
+
+    } catch (err) {
+        if (req.file) deleteReceiptOnFail(req.file.path)
+        return res.status(500).json({ message: 'Server error', error: err.message })
+    }
 }
 
 const updateExpense = async (req, res) => {
@@ -113,10 +128,25 @@ const updateExpense = async (req, res) => {
     const currentExpense = await db.Expense.findOne({ where: { [Op.and]: { id: id, user_id: userUUID } } });
     if (!currentExpense) return res.status(400).json('No match found')
 
+    if (currentExpense['is_recurring']) {
+        if (!currentExpense['start_date']) {
+            return res.status(401).json({message: 'Reccuring expenses require a start date'})
+        }
+    }
+        
     for (const field in currentExpense.toJSON()) {
         if (field in req.body) {
             currentExpense[field] = req.body[field]
         }
+    }
+
+    if (req.file) {
+        const receipt_id = req.file.filename.split('.')[0]
+        await db.Receipt.destroy({ where: { [Op.and]: { id: currentExpense['receipt_id'], user_id: userUUID } } })
+            .then(() => deleteReceiptOnFail(req.file.path))
+            .catch(() => res.status(500).json('Failed to delete receipt'))
+        db.Receipt.create({ id: receipt_id, file_path: req.file.path, user_id: userUUID })
+        currentExpense['receipt_id'] = receipt_id
     }
 
     currentExpense.save()
@@ -131,7 +161,15 @@ const deleteExpense = async (req, res) => {
     if (id.replaceAll('-', '').length !== 32) return res.status(400).json('Invalid expense ID')
 
     try {
-        const deleteExpense = await db.Expense.destroy({ where: { [Op.and]: { id: id, user_id: userUUID } } })
+        const deleteExpense = await db.Expense.findOne({ where: { [Op.and]: { id: id, user_id: userUUID } } })
+
+        await db.Receipt.findOne({ where: { [Op.and]: { id: deleteExpense['receipt_id'], user_id: userUUID } } })
+            .then((res) => deleteReceiptOnFail(res['file_path']))
+            .then(() => db.Receipt.destroy({ where: { [Op.and]: { id: deleteExpense['receipt_id'], user_id: userUUID } } }))
+            .catch(() => res.status(500).json('Failed to delete receipt'))
+
+        await deleteExpense.destroy().catch(() => res.status(500).json('Failed to delete expense'))
+
         return (deleteExpense) ? res.status(200).json('Deletion successful') : res.status(400).json('No expense with such ID')
     } catch (err) {
         return res.status(500).json({ message: 'Failed to delete the record', error: err.message })
