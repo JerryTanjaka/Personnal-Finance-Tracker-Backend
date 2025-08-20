@@ -53,8 +53,8 @@ db.Receipt.belongsTo(db.User, { foreignKey: {name:'user_id', allowNull: false}, 
 db.Receipt.hasOne(db.Expense, { foreignKey: {name:'receipt_id', allowNull: true}, sourceKey: 'id', as: 'receipt_fk', onDelete: 'SET NULL', onUpdate: 'CASCADE' })
 
 
-await sequelize.sync({ alter: true, force: true })
+// await sequelize.sync({ alter: true })
 
 export default db;
 
-createMocks()
+// createMocks()
