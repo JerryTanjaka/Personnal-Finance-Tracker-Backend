@@ -1,7 +1,7 @@
 import multer from 'multer'
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
-import { rm } from "fs";
+import { rm } from "fs/promises";
 
 export const uploadReceipt = multer({
     limits: { files: 1, fileSize: 2097152},
@@ -19,5 +19,5 @@ export const uploadReceipt = multer({
 })
 
 export const deleteReceiptOnFail = (receiptPath) => {
-    rm(receiptPath, () => console.log('Reciept deleted'))
+    rm(receiptPath, () => console.log('Deleting receipt')).then(() => console.log("Receipt deleted"))
 }
