@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: Income Tracker API
+  version: 1.0.0
+  description: API pour gérer l'authentification et les revenus des utilisateurs.
+servers:
+  - url: http://localhost:3000/api
+
+paths:
+  /auth/sign:
+    post:
+      summary: Créer un compte utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  example: testtest@gmail.com
+                password:
+                  type: string
+                  example: "1234"
+      responses:
+        "201":
+          description: Utilisateur créé avec succès
+        "400":
+          description: Requête invalide
+
+  /auth/login:
+    post:
+      summary: Connexion d'un utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  example: testtest@gmail.com
+                password:
+                  type: string
+                  example: "1234"
+      responses:
+        "200":
+          description: Authentification réussie (retourne un token JWT)
+        "401":
+          description: Identifiants invalides
+
+  /income:
+    post:
+      summary: Créer un revenu
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, date, source]
+              properties:
+                amount:
+                  type: number
+                  example: 1500
+                date:
+                  type: string
+                  format: date
+                  example: 2025-08-19
+                source:
+                  type: string
+                  example: Freelance
+                description:
+                  type: string
+                  example: Projet X
+      responses:
+        "201":
+          description: Revenu créé avec succès
+        "401":
+          description: Non autorisé
+
+    get:
+      summary: Lister tous les revenus de l’utilisateur
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Liste des revenus
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Income"
+        "401":
+          description: Non autorisé
+
+  /income/{id}:
+    get:
+      summary: Obtenir un revenu par ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Revenu trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Income"
+        "404":
+          description: Revenu non trouvé
+
+    put:
+      summary: Mettre à jour un revenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  example: 2000
+                description:
+                  type: string
+                  example: Projet X mis à jour
+      responses:
+        "200":
+          description: Revenu mis à jour
+        "404":
+          description: Revenu non trouvé
+
+    delete:
+      summary: Supprimer un revenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Revenu supprimé avec succès
+        "404":
+          description: Revenu non trouvé
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Income:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        amount:
+          type: number
+          example: 1500
+        date:
+          type: string
+          format: date
+          example: 2025-08-19
+        source:
+          type: string
+          example: Freelance
+        description:
+          type: string
+          example: Projet X

@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/sign
 Content-Type: application/json
 
 {
-    "email": "demon@gmail.com",
+    "email": "testtest@gmail.com",
     "password": "1234"
 }
 
@@ -12,14 +12,14 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "demon@gmail.com",
+    "email": "testtest@gmail.com",
     "password": "1234"
 }
 
 ### Create an income
 POST http://localhost:3000/api/income/
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxLCJlbWFpbCI6InRlc3QzMEBnbWFpbC5jb20iLCJpYXQiOjE3NTU2MjU5NDQsImV4cCI6MTc1NTYyNjg0NH0.haephC-QUs0lq1VDHzVynEX3YNTszFKiGfVBW4KRvt0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
 
 {
   "amount": 1500,
@@ -31,18 +31,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxLCJlbWFpb
 
 ###  get all income 
 GET http://localhost:3000/api/income
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxLCJlbWFpbCI6InRlc3QzMEBnbWFpbC5jb20iLCJpYXQiOjE3NTU2MjU5NDQsImV4cCI6MTc1NTYyNjg0NH0.haephC-QUs0lq1VDHzVynEX3YNTszFKiGfVBW4KRvt0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
 Content-Type: application/json
 
 
 ###Get an income by its id 
-GET http://localhost:3000/api/income/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxLCJlbWFpbCI6InRlc3QzMEBnbWFpbC5jb20iLCJpYXQiOjE3NTU2MjU5NDQsImV4cCI6MTc1NTYyNjg0NH0.haephC-QUs0lq1VDHzVynEX3YNTszFKiGfVBW4KRvt0
+GET http://localhost:3000/api/income/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44 
 Content-Type: application/json
 
 ### Update an income 
-PUT http://localhost:3000/api/income/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxLCJlbWFpbCI6InRlc3QzMEBnbWFpbC5jb20iLCJpYXQiOjE3NTU2MjU5NDQsImV4cCI6MTc1NTYyNjg0NH0.haephC-QUs0lq1VDHzVynEX3YNTszFKiGfVBW4KRvt0
+PUT http://localhost:3000/api/income/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
 Content-Type: application/json
 
 {
@@ -53,5 +53,5 @@ Content-Type: application/json
 
 ### Delete an income
 DELETE http://localhost:3000/api/income/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxLCJlbWFpbCI6InRlc3QzMEBnbWFpbC5jb20iLCJpYXQiOjE3NTU2MjU5NDQsImV4cCI6MTc1NTYyNjg0NH0.haephC-QUs0lq1VDHzVynEX3YNTszFKiGfVBW4KRvt0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
 Content-Type: application/json
