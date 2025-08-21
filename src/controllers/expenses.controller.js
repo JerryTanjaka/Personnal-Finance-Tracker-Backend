@@ -5,40 +5,31 @@ import { deleteReceiptOnFail } from "../middleware/uploadReceipt.js";
 const getAllExpenses = async (req, res) => {
     const userUUID = req.user.id
     try {
-        let { start, end, category, type } = req.query
+        let { start, end, category, is_recurrent } = req.query
         let conditions = { user_id: userUUID }
         let errorList = []
 
-        if (new Date(start) == 'Invalid Date') {
-            errorList.push['Invalid start date format']
-            start = new Date(0)
-        }
-        if (new Date(end) == 'Invalid Date') {
-            errorList.push['Invalid end date format']
-            end = new Date(Date.now())
-        }
-        conditions.expense_date = { [Op.between]: [start, end] }
+        if (start && String(new Date(start)) == 'Invalid Date') { errorList.push('Invalid start date format') }
+        if (end && String(new Date(end)) == 'Invalid Date') { errorList.push('Invalid end date format') }
+        if (category && typeof category != 'string') { errorList.push('Category must be a name') }
+        if (is_recurrent && typeof (is_recurrent.toLowerCase().includes("true")) != 'boolean') { errorList.push('Reccurent must be a true or false') }
 
-        if (category && typeof (Number(category)) != 'number') errorList.push('Invalid category, must be a number')
-        if (category && typeof (Number(category)) === 'number') {
-            conditions.category_id = category
-        }
+        if (errorList.length > 0) return res.status(400).json({ message: 'Invalid field', error: errorList })
 
-        if (type && typeof (type) != 'string') errorList.push('Invalid type, must be a string')
-        if (type && typeof (type) === 'string') {
-            conditions.type = type
+        conditions.expense_date = { [Op.between]: [new Date(start || 0), new Date(end || Date.now())] }
+        if (category) {
+            const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: category } } } })
+            if (wantedCategory) conditions.category_id = wantedCategory['id']
         }
-
-        if (errorList.length > 0) return res.status(400).json({ message: 'Invalid field:', error: errorList })
+        if (is_recurrent) {
+            conditions.is_recurrent = is_recurrent.toLowerCase().includes("true")
+        }
 
         const queryAnswer = await db.Expense.findAll({
             where: { [Op.and]: conditions },
             include: [{
                 association: 'category_fk',
                 attributes: ["name"]
-            }, {
-                association: 'user_fk',
-                attributes: ["email"]
             }],
             order: [['expense_date', 'DESC']]
         })
