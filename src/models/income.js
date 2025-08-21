@@ -15,9 +15,9 @@ export default (sequelize) => {
   Income.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: sequelize.literal('gen_random_uuid()'),
       },
       amount: {
         type: DataTypes.DECIMAL(10, 2),
@@ -41,7 +41,7 @@ export default (sequelize) => {
         defaultValue: DataTypes.NOW,
       },
       user_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: "users",
