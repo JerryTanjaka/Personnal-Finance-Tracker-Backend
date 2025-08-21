@@ -5,6 +5,7 @@ import expenseFactory from './expense.js'
 import categoryFactory from './category.js';
 import receiptFactory from './receipt.js';
 import createMocks from '../data/mocks.js';
+import incomeFactory from './income.js';
 
 const db = {};
 
@@ -15,12 +16,14 @@ db.RefreshToken = refreshTokenFactory(sequelize);
 db.Expense = expenseFactory(sequelize);
 db.Category = categoryFactory(sequelize)
 db.Receipt = receiptFactory(sequelize);
+db.Income = incomeFactory(sequelize);
 
 // Associations
-// 1 User -> N RefreshTokens
-
 db.User.hasMany(db.RefreshToken, { foreignKey: 'user_id', as: 'refresh_tokens' });
 db.RefreshToken.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+
+db.User.hasMany(db.Income, { foreignKey: 'user_id', as: 'incomes' });
+db.Income.belongsTo(db.User, { foreignKey: 'user_id', as: 'user', onDelete: 'CASCADE' });
 
 
 // Expenses assosiations

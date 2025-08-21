@@ -1,0 +1,57 @@
+POST http://localhost:3000/api/auth/sign
+Content-Type: application/json
+
+{
+    "email": "testtest@gmail.com",
+    "password": "1234"
+}
+
+###
+
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "testtest@gmail.com",
+    "password": "1234"
+}
+
+### Create an income
+POST http://localhost:3000/api/income/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
+
+{
+  "amount": 1500,
+  "date": "2025-08-19",
+  "source": "Freelance",
+  "description": "Projet X"
+}
+
+
+###  get all income 
+GET http://localhost:3000/api/income
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
+Content-Type: application/json
+
+
+###Get an income by its id 
+GET http://localhost:3000/api/income/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44 
+Content-Type: application/json
+
+### Update an income 
+PUT http://localhost:3000/api/income/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
+Content-Type: application/json
+
+{
+  "amount": 2000,
+  "description": "Projet X mis à jour"
+}
+
+
+### Delete an income
+DELETE http://localhost:3000/api/income/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM1LCJlbWFpbCI6InRlc3R0ZXN0QGdtYWlsLmNvbSIsImlhdCI6MTc1NTY2Mjk4MiwiZXhwIjoxNzU1NjYzODgyfQ.luA09NnMn1n_8aQbsv9BVAakbaTXY8xZwax0_kjtG44
+Content-Type: application/json
