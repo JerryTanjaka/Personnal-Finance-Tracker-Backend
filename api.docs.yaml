@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API pour gérer l'authentification et les revenus des utilisateurs.
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:8080/api
 
 paths:
   /auth/sign:
@@ -191,7 +191,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -201,19 +201,17 @@ paths:
                 amount:
                   type: number
                   example: 800
-                date:
+                expense_date:
                   type: string
                   format: date
                   example: "2025-08-20"
-                category_id:
+                category_name:
                   type: string
-                  format: uuid
-                  example: "123e4567-e89b-12d3-a456-426614174000"
-                receipt_id:
+                  example: "Nourriture"
+                receipt_image:
                   type: string
-                  format: uuid
-                  example: "123e4567-e89b-12d3-a456-426614174000"
-                isRecurring:
+                  format: binary
+                is_recurrent:
                   type: boolean
                   example: true
                 start_date:
@@ -224,6 +222,10 @@ paths:
                   type: string
                   format: date
                   example: "2027-04-01"
+            encoding:
+              receipt_image:
+                contentType: image/png, image/jpg, image/jpeg, application/pdf
+
       responses:
         "201":
           description: La dépense créée
@@ -352,7 +354,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -361,20 +363,18 @@ paths:
                   example: "Loyer"
                 amount:
                   type: number
-                  example: 850
-                date:
+                  example: 800
+                expense_date:
                   type: string
                   format: date
-                  example: "2025-09-20"
-                category_id:
+                  example: "2025-08-20"
+                category_name:
                   type: string
-                  format: uuid
-                  example: "123e4567-e89b-12d3-a456-426614174000"
-                receipt_id:
+                  example: "Logement"
+                receipt_image:
                   type: string
-                  format: uuid
-                  example: "123e4567-e89b-12d3-a456-426614174001"
-                isRecurring:
+                  format: binary
+                is_recurrent:
                   type: boolean
                   example: true
                 start_date:
@@ -385,6 +385,10 @@ paths:
                   type: string
                   format: date
                   example: "2027-04-01"
+            encoding:
+              receipt_image:
+                contentType: image/png, image/jpg, image/jpeg, application/pdf
+
       responses:
         "200":
           description: La dépense mise à jour
@@ -649,7 +653,7 @@ components:
         amount:
           type: number
           example: 800
-        date:
+        expense_date:
           type: string
           format: date
           example: "2025-08-20"
@@ -661,7 +665,7 @@ components:
           type: string
           format: uuid
           example: "123e4567-e89b-12d3-a456-426614174001"
-        isRecurring:
+        is_recurrent:
           type: boolean
           example: true
         start_date:
