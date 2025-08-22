@@ -1,9 +1,12 @@
 import express from "express";
 import cors from "cors";
+
 import auth from "./routes/auth.route.js";
 import expenses from "./routes/expenses.route.js";
-import requireAuth from "./middleware/auth.js";
+import categories from "./routes/categories.route.js";
 import incomeRoute from "./routes/income.route.js";
+
+import requireAuth from "./middleware/auth.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import path from "path";
@@ -21,10 +24,11 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", auth);
+app.use("/api/expenses", requireAuth, expenses)
 app.use("/api/income", incomeRoute);
+app.use("/api/categories", requireAuth, categories)
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use("/api/expenses", requireAuth, expenses)
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
