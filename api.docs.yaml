@@ -454,6 +454,161 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorMessage"
 
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Récupérer toutes les catégories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Une liste de catégories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    post:
+      tags:
+        - Categories
+      summary: Créer une nouvelle catégorie
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Nourriture"
+      responses:
+        "201":
+          description: La catégorie a été créée avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+  /categories/{id}:
+    put:
+      tags:
+        - Categories
+      summary: Mettre à jour une catégorie
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de la catégorie à mettre à jour.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Transport"
+      responses:
+        "200":
+          description: La catégorie a été mise à jour avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: La catégorie n'a pas été trouvée.
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: No category with such ID }
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    delete:
+      tags:
+        - Categories
+      summary: Supprimer une catégorie
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de la catégorie à supprimer.
+        - in: query
+          name: force
+          required: false
+          schema:
+            type: boolean
+          description: Ignoree si la categorie est encore utilisée
+      responses:
+        "204":
+          description: La catégorie a été supprimée avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: Deletion successful }
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: La catégorie n'a pas été trouvée.
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: No category with such ID }
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -517,6 +672,26 @@ components:
           type: string
           format: date
           example: "2027-04-01T12:30:00Z"
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        name:
+          type: string
+          example: "Nourriture"
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date
+          example: "2025-08-20T12:30:00Z"
+        user_id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174001"
     ErrorMessage:
       properties:
         message:

@@ -1,6 +1,8 @@
 import { Op } from "sequelize";
 import db from "../models/index.js";
 
+const isUUID = (id) => typeof id != 'string' || id.replaceAll('-', '').length !== 32
+
 const getAllCategories = async (req, res) => {
     const userUUID = req.body.id
     try {
@@ -16,7 +18,7 @@ const createCategory = async (req, res) => {
     const userUUID = req.body.id
     try {
         const { categoryName } = req.body
-        if (!categoryName) { return res.status(400).json({ message: 'Invalid field', error: 'No category name specified' }) }
+        if (!categoryName) { return res.status(400).json({ message: 'Invalid field', error: 'No name specified' }) }
 
         const categoryList = await db.Category.findAll({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: categoryName } } } })
         if (categoryList) { return res.status(400).json({ message: 'Invalid field', error: 'Category already exists' }) }
@@ -33,7 +35,7 @@ const updateCategory = async (req, res) => {
     const userUUID = req.body.id
     try {
         const { id } = req.params
-        if (!id) { return res.status(400).json({ message: 'Invalid field', error: 'No category ID specified' }) }
+        if (isUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
 
         const { name } = req.body
         if (!name) { return res.status(400).json({ message: 'Invalid field', error: 'No name specified' }) }
@@ -54,13 +56,14 @@ const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params
         const { force } = req.query
-        if (!id) { return res.status(400).json({ message: 'Invalid field', error: 'No category ID specified' }) }
+        if (isUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
 
         const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, id: id } } })
         if (!wantedCategory) { return res.status(404).json({ message: 'No category with such ID' }) }
 
         const categoryExpenseList = db.Expense.findOne({ where: { [Op.and]: { user_id: userUUID, category_id: id } } })
-        if (categoryExpenseList && !force) { return res.status(400).json({ message: 'Cannot delete', error: 'Category is still used' }) }
+        const booleanForce = (String(force).includes("true")) 
+        if (categoryExpenseList && !booleanForce) { return res.status(400).json({ message: 'Cannot delete', error: 'Category is still used' }) }
 
         await wantedCategory.destroy()
             .then(() => res.status(204).json({ message: 'Deleted category successfully' }))
