@@ -18,6 +18,6 @@ export const uploadReceipt = multer({
     }
 })
 
-export const deleteReceiptOnFail = (receiptPath) => {
-    rm(receiptPath, () => console.log('Deleting receipt')).then(() => console.log("Receipt deleted"))
+export const deleteReceipt = async (receiptPath) => {
+    await rm(receiptPath)
 }
