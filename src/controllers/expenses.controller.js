@@ -67,12 +67,9 @@ const getSpecificExpense = async (req, res) => {
 
 const createExpense = async (req, res) => {
     try {
-        let { amount, expense_date, category_id, description, is_recurrent, start_date, end_date } = req.body
+        let { amount, expense_date, category_name, description, is_recurrent, start_date, end_date } = req.body
 
-        amount = parseInt(amount)
-        is_recurrent = is_recurrent.toLowerCase().includes("true")
-
-        if (!(amount && expense_date && category_id)) {
+        if (!(amount && expense_date)) {
             if (req.file) deleteReceiptOnFail(req.file.path)
             return res.status(400).json({ message: 'Missing field', error: Object.keys(req.body).filter(field => !req.body[field]) })
         }
@@ -91,15 +88,18 @@ const createExpense = async (req, res) => {
 
         let receipt_id = null
 
+        const categoryExists = await db.Category.findOne({ where: { [Op.and]: { name: { [Op.iLike]: category_name }, user_id: userUUID } } })
+        if (!categoryExists) {
+            return res.status(400).json({ message: 'Invalid field', error: 'Category does not exist' })
+        }
+
         if (req.file) {
             receipt_id = req.file.filename.split('.')[0]
             await db.Receipt.create({ id: receipt_id, file_path: req.file.path, user_id: userUUID })
         }
 
-        const newExpense = db.Expense.create({ user_id: userUUID, amount, expense_date, category_id, description, is_recurrent, start_date, end_date, receipt_id })
-
-        return res.status(201).json(newExpense)
-
+        const newExpense = db.Expense.build({ user_id: userUUID, amount, expense_date, category_id: categoryExists['id'], description, is_recurrent, start_date, end_date, receipt_id })
+        return await newExpense.save().then(() => res.status(201).json(newExpense))
     } catch (err) {
         if (req.file) deleteReceiptOnFail(req.file.path)
         return res.status(500).json({ message: 'Server error', error: err.message })
@@ -122,8 +122,18 @@ const updateExpense = async (req, res) => {
             }
         }
 
+        if (req.body.category_name) {
+            const categoryExists = await db.Category.findOne({ where: { [Op.and]: { name: req.body.category_name, user_id: userUUID } } })
+            if (!categoryExists) {
+                return res.status(400).json({ message: 'Invalid field', error: 'Category does not exist' })
+            }
+            req.body.category_id = categoryExists['id']
+            delete req.body.category_name
+        }
+
         for (const field in currentExpense.toJSON()) {
-            if (field in req.body) {
+            if (req.body[field] == '') req.body[field] = null
+            if (field in req.body && req.body[field]) {
                 currentExpense[field] = req.body[field]
             }
         }
@@ -137,7 +147,7 @@ const updateExpense = async (req, res) => {
             currentExpense['receipt_id'] = receipt_id
         }
 
-        currentExpense.save()
+        return await currentExpense.save()
             .then(() => res.status(200).json(currentExpense))
             .catch(err => res.status(500).json({ message: 'Failed to apply changes', error: err }))
     } catch (err) {
@@ -160,9 +170,9 @@ const deleteExpense = async (req, res) => {
             .then(() => db.Receipt.destroy({ where: { [Op.and]: { id: deleteExpense['receipt_id'], user_id: userUUID } } }))
             .catch((rej) => res.status(500).json({ message: 'Failed to delete receipt', error: rej }))
 
-        await deleteExpense.destroy().catch((rej) => res.status(500).json({ message: 'Failed to delete expense', error: rej }))
-
-        return res.status(204).json({ message: 'Deletion successful' })
+        return await deleteExpense.destroy()
+            .then(() => res.status(204).json({ message: 'Deletion successful' }))
+            .catch((rej) => res.status(500).json({ message: 'Failed to delete expense', error: rej }))
     } catch (err) {
         return res.status(500).json({ message: 'Failed to delete the record', error: err.message })
     }

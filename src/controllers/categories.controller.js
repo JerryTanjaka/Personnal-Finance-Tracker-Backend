@@ -1,0 +1,76 @@
+import { Op } from "sequelize";
+import db from "../models/index.js";
+
+const isUUID = (id) => typeof id != 'string' || id.replaceAll('-', '').length !== 32
+
+const getAllCategories = async (req, res) => {
+    const userUUID = req.user.id
+    try {
+        return await db.Category.findAll({ where: { [Op.or]: { user_id: userUUID, is_default: true } } })
+            .then(resolve => res.status(200).json(resolve))
+            .catch(rej => res.status(500).json({ message: 'Failed to list category', err: rej }))
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error', error: err.message })
+    }
+}
+
+const createCategory = async (req, res) => {
+    const userUUID = req.user.id
+    try {
+        const { name } = req.body
+        if (!name) { return res.status(400).json({ message: 'Invalid field', error: 'No name specified' }) }
+
+        const categoryList = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: name } } } })
+        if (categoryList) { return res.status(400).json({ message: 'Invalid field', error: 'Category already exists' }) }
+
+        return await db.Category.create({ name: name, is_default: false, user_id: userUUID })
+            .then(resolve => res.status(201).json(resolve))
+            .catch(rej => res.status(500).json({ message: 'Failed to create category', err: rej }))
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error', error: err.message })
+    }
+}
+
+const updateCategory = async (req, res) => {
+    const userUUID = req.user.id
+    try {
+        const { id } = req.params
+        if (isUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
+
+        const { name } = req.body
+        if (!name) { return res.status(400).json({ message: 'Invalid field', error: 'No name specified' }) }
+
+        const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, id: id } } })
+        if (!wantedCategory) { return res.status(404).json({ message: 'No category with such ID' }) }
+
+        return await wantedCategory.update({ name: name })
+            .then(resolve => res.status(200).json(resolve))
+            .catch(rej => res.status(500).json({ message: 'Failed to update category', err: rej }))
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error', error: err.message })
+    }
+}
+
+const deleteCategory = async (req, res) => {
+    const userUUID = req.user.id
+    try {
+        const { id } = req.params
+        const { force } = req.query
+        if (isUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
+
+        const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, id: id } } })
+        if (!wantedCategory) { return res.status(404).json({ message: 'No category with such ID' }) }
+
+        const categoryExpenseList = db.Expense.findOne({ where: { [Op.and]: { user_id: userUUID, category_id: id } } })
+        const booleanForce = (String(force).includes("true")) 
+        if (categoryExpenseList && !booleanForce) { return res.status(400).json({ message: 'Cannot delete', error: 'Category is still used' }) }
+
+        return await wantedCategory.destroy()
+            .then(() => res.status(204).json({ message: 'Deleted category successfully' }))
+            .catch(rej => res.status(500).json({ message: 'Failed to delete category', err: rej }))
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error', error: err.message })
+    }
+}
+
+export { getAllCategories, createCategory, updateCategory, deleteCategory }
