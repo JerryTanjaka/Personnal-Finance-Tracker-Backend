@@ -22,15 +22,34 @@ paths:
               properties:
                 email:
                   type: string
+                  format: email
                   example: testtest@gmail.com
                 password:
                   type: string
-                  example: "1234"
+                  minLength: 6
+                  maxLength: 64
+                  example: "123456"
       responses:
         "201":
           description: Utilisateur créé avec succès
         "400":
-          description: Requête invalide
+          description: Requête invalide (données manquantes ou incorrectes)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "409":
+          description: Conflit (email déjà utilisé)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
 
   /auth/login:
     post:
@@ -47,15 +66,28 @@ paths:
               properties:
                 email:
                   type: string
+                  format: email
                   example: testtest@gmail.com
                 password:
                   type: string
-                  example: "1234"
+                  example: "123456"
       responses:
         "200":
           description: Authentification réussie (retourne un token JWT)
+        "400":
+          description: Mauvaise requête (format incorrect)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
         "401":
           description: Identifiants invalides
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur serveur
 
   /income:
     post:
@@ -74,6 +106,7 @@ paths:
               properties:
                 amount:
                   type: number
+                  minimum: 0
                   example: 1500
                 date:
                   type: string
@@ -81,15 +114,30 @@ paths:
                   example: 2025-08-19
                 source:
                   type: string
+                  minLength: 2
+                  maxLength: 100
                   example: Freelance
                 description:
                   type: string
+                  maxLength: 255
                   example: Projet X
       responses:
         "201":
           description: Revenu créé avec succès
+        "400":
+          description: Requête invalide
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
         "401":
           description: Non autorisé
+        "422":
+          description: Erreur de validation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
 
     get:
       summary: Lister tous les revenus de l’utilisateur
@@ -108,6 +156,8 @@ paths:
                   $ref: "#/components/schemas/Income"
         "401":
           description: Non autorisé
+        "500":
+          description: Erreur serveur
 
   /income/{id}:
     get:
@@ -132,6 +182,14 @@ paths:
                 $ref: "#/components/schemas/Income"
         "404":
           description: Revenu non trouvé
+        "400":
+          description: ID invalide
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "401":
+          description: Non autorisé
 
     put:
       summary: Mettre à jour un revenu
@@ -155,15 +213,21 @@ paths:
               properties:
                 amount:
                   type: number
+                  minimum: 0
                   example: 2000
                 description:
                   type: string
+                  maxLength: 255
                   example: Projet X mis à jour
       responses:
         "200":
           description: Revenu mis à jour
+        "400":
+          description: Requête invalide
         "404":
           description: Revenu non trouvé
+        "401":
+          description: Non autorisé
 
     delete:
       summary: Supprimer un revenu
@@ -183,280 +247,10 @@ paths:
           description: Revenu supprimé avec succès
         "404":
           description: Revenu non trouvé
-
-  /expenses:
-    post:
-      summary: Créer une dépense
-      security:
-        - bearerAuth: []
-      tags:
-        - Expense
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                amount:
-                  type: number
-                expense_date:
-                  type: string
-                  format: date
-                category_name:
-                  type: string
-                description:
-                  type: string
-                is_recurrent:
-                  type: boolean
-                start_date:
-                  type: string
-                  format: date
-                end_date:
-                  type: string
-                  format: date
-                receipt_image:
-                  type: string
-                  format: binary
-      responses:
-        "201":
-          description: La dépense créée
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Expense"
+        "401":
+          description: Non autorisé
         "400":
-          description: Erreur dans la requête
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorMessage"
-        "500":
-          description: Erreur serveur
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorMessage"
-
-    get:
-      summary: Obtenir toutes les dépenses
-      security:
-        - bearerAuth: []
-      tags:
-        - Expense
-      parameters:
-        - name: start
-          in: query
-          schema:
-            type: string
-            format: date
-          description: Date minimale
-        - name: end
-          in: query
-          schema:
-            type: string
-            format: date
-          description: Date maximale
-        - name: category
-          in: query
-          schema:
-            type: string
-          description: Catégorie de la dépense
-        - name: is_recurrent
-          in: query
-          schema:
-            type: string
-          description: Si la dépense est récurrente ("true"/"false")
-      responses:
-        "200":
-          description: Liste des dépenses
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Expense"
-
-  /expenses/{id}:
-    get:
-      summary: Obtenir une dépense par ID
-      security:
-        - bearerAuth: []
-      tags:
-        - Expense
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Une dépense
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Expense"
-        "404":
-          description: Dépense non trouvée
-
-    put:
-      summary: Mettre à jour une dépense
-      security:
-        - bearerAuth: []
-      tags:
-        - Expense
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                amount:
-                  type: number
-                expense_date:
-                  type: string
-                  format: date
-                category_name:
-                  type: string
-                description:
-                  type: string
-                is_recurrent:
-                  type: boolean
-                start_date:
-                  type: string
-                  format: date
-                end_date:
-                  type: string
-                  format: date
-                receipt_image:
-                  type: string
-                  format: binary
-      responses:
-        "200":
-          description: Dépense mise à jour
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Expense"
-        "404":
-          description: Dépense non trouvée
-
-    delete:
-      summary: Supprimer une dépense
-      security:
-        - bearerAuth: []
-      tags:
-        - Expense
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "204":
-          description: Dépense supprimée
-
-  /categories:
-    get:
-      summary: Lister toutes les catégories (utilisateur + par défaut)
-      security:
-        - bearerAuth: []
-      tags:
-        - Category
-      responses:
-        "200":
-          description: Liste des catégories
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Category"
-
-    post:
-      summary: Créer une catégorie pour l'utilisateur
-      security:
-        - bearerAuth: []
-      tags:
-        - Category
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name]
-              properties:
-                name:
-                  type: string
-      responses:
-        "201":
-          description: Catégorie créée
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Category"
-
-  /categories/{id}:
-    put:
-      summary: Mettre à jour une catégorie
-      security:
-        - bearerAuth: []
-      tags:
-        - Category
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name]
-              properties:
-                name:
-                  type: string
-      responses:
-        "200":
-          description: Catégorie mise à jour
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Category"
-
-    delete:
-      summary: Supprimer une catégorie
-      security:
-        - bearerAuth: []
-      tags:
-        - Category
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "204":
-          description: Catégorie supprimée
+          description: ID invalide
 
 components:
   securitySchemes:
@@ -486,55 +280,12 @@ components:
           type: string
           example: Projet X
 
-    Expense:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        description:
-          type: string
-        amount:
-          type: number
-        expense_date:
-          type: string
-          format: date
-        category_id:
-          type: string
-          format: uuid
-        receipt_id:
-          type: string
-          format: uuid
-        is_recurrent:
-          type: boolean
-        category_name:
-          type: string
-          description: Name of the category (used for create/update)
-        start_date:
-          type: string
-          format: date
-        end_date:
-          type: string
-          format: date
-
-    Category:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        is_default:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-
     ErrorMessage:
       type: object
       properties:
         message:
           type: string
+          example: "Une erreur est survenue"
         error:
           type: string
+          example: "Bad Request"
