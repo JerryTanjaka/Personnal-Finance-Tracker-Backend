@@ -4,7 +4,6 @@ import refreshTokenFactory from './refreshToken.js';
 import expenseFactory from './expense.js'
 import categoryFactory from './category.js';
 import receiptFactory from './receipt.js';
-import createMocks from '../data/mocks.js';
 import incomeFactory from './income.js';
 
 const db = {};
@@ -56,8 +55,6 @@ db.Receipt.belongsTo(db.User, { foreignKey: {name:'user_id', allowNull: false}, 
 db.Receipt.hasOne(db.Expense, { foreignKey: {name:'receipt_id', allowNull: true}, sourceKey: 'id', as: 'receipt_fk', onDelete: 'SET NULL', onUpdate: 'CASCADE' })
 
 
-// await sequelize.sync({ alter: true })
+await sequelize.sync()
 
 export default db;
-
-// createMocks()
