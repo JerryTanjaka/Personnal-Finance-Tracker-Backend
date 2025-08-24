@@ -7,7 +7,7 @@ servers:
   - url: http://localhost:8080/api
 
 paths:
-  /auth/sign:
+  /auth/signup:
     post:
       summary: Créer un compte utilisateur
       tags: 
@@ -769,3 +769,18 @@ components:
         error:
           type: string
           example: "Bad Request"
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-08-01T12:00:00Z"
