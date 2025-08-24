@@ -784,12 +784,18 @@ components:
     Category:
       type: object
       properties:
-        message:
+        id:
           type: string
-          example: "Une erreur est survenue"
-        error:
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174111"
+        name:
           type: string
-          example: "Bad Request"
+          example: "Nourriture"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-08-20T10:30:00Z"
+
     User:
       type: object
       properties:
@@ -805,3 +811,9 @@ components:
           type: string
           format: date-time
           example: "2025-08-01T12:00:00Z"
+    ErrorMessage:
+      type: object
+      properties: 
+        error: 
+          type: string
+          example: "An error occurred"
