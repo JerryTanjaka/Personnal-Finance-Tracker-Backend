@@ -106,6 +106,7 @@ paths:
               properties:
                 amount:
                   type: number
+                  format: float
                   minimum: 0
                   example: 1500
                 date:
@@ -213,6 +214,7 @@ paths:
               properties:
                 amount:
                   type: number
+                  format: float
                   minimum: 0
                   example: 2000
                 description:
@@ -249,8 +251,451 @@ paths:
           description: Revenu non trouvé
         "401":
           description: Non autorisé
+
+  /expenses:
+    post:
+      summary: Créer une dépense
+      security:
+        - bearerAuth: []
+      tags:
+        - Expenses
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: "Loyer"
+                amount:
+                  type: number
+                  format: float
+                  example: 800
+                date:
+                  type: string
+                  format: date
+                  example: "2025-08-20"
+                categoryId:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                receipt:
+                  type: string
+                  format: binary
+                type:
+                  type: string
+                  enum:
+                    - one-time
+                    - recurring
+                  example: one-time
+                startDate:
+                  type: string
+                  format: date
+                  example: "2025-08-20"
+                endDate:
+                  type: string
+                  format: date
+                  example: "2027-04-01"
+            encoding:
+              receipt:
+                contentType: image/png, image/jpg, image/jpeg, application/pdf
+
+      responses:
+        "201":
+          description: La dépense créée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
         "400":
-          description: ID invalide
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur lors du traitement de la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    get:
+      summary: Obtenir toutes les dépenses
+      security:
+        - bearerAuth: []
+      tags:
+        - Expenses
+      parameters:
+        - name: start
+          in: query
+          description: Date minimale de l'effectuation des depenses
+          schema:
+            type: string
+            format: date
+        - name: end
+          in: query
+          description: Date maximale de l'effectuation des depenses
+          schema:
+            type: string
+            format: date
+        - name: category
+          in: query
+          description: La catégorie de la dépense
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Type de la dépense
+          schema:
+            type: string
+            enum:
+              - one-time
+              - recurring
+      responses:
+        "200":
+          description: Une liste de dépenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur lors du traitement de la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+  "/expenses/{id}":
+    get:
+      summary: Obtenir une dépense par ID
+      security:
+        - bearerAuth: []
+      tags:
+        - Expenses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la dépense
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Une dépense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+        "404":
+          description: Dépense non trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: No such expense }
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur lors du traitement de la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    put:
+      summary: Mettre à jour une dépense
+      security:
+        - bearerAuth: []
+      tags:
+        - Expenses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la dépense
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: "Loyer"
+                amount:
+                  type: number
+                  format: float
+                  example: 800
+                date:
+                  type: string
+                  format: date
+                  example: "2025-08-20"
+                categoryId:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174001"
+                receipt:
+                  type: string
+                  format: binary
+                type:
+                  type: string
+                  enum:
+                    - one-time
+                    - recurring
+                  example: one-time
+                startDate:
+                  type: string
+                  format: date
+                  example: "2025-08-20"
+                endDate:
+                  type: string
+                  format: date
+                  example: "2027-04-01"
+            encoding:
+              receipt:
+                contentType: image/png, image/jpg, image/jpeg, application/pdf
+
+      responses:
+        "200":
+          description: La dépense mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+        "404":
+          description: Dépense non trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: No match found }
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur lors du traitement de la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    delete:
+      summary: Supprimer une dépense
+      security:
+        - bearerAuth: []
+      tags:
+        - Expenses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la dépense
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Dépense supprimée
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: Deletion successful }
+        "404":
+          description: Dépense non trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: No expense with such ID }
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur lors du traitement de la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Récupérer toutes les catégories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Une liste de catégories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    post:
+      tags:
+        - Categories
+      summary: Créer une nouvelle catégorie
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Nourriture"
+      responses:
+        "201":
+          description: La catégorie a été créée avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+  /categories/{id}:
+    put:
+      tags:
+        - Categories
+      summary: Mettre à jour une catégorie
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de la catégorie à mettre à jour.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Transport"
+      responses:
+        "200":
+          description: La catégorie a été mise à jour avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: La catégorie n'a pas été trouvée.
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: No category with such ID }
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    delete:
+      tags:
+        - Categories
+      summary: Supprimer une catégorie
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de la catégorie à supprimer.
+        - in: query
+          name: force
+          required: false
+          schema:
+            type: boolean
+          description: Ignore si la categorie est encore utilisée
+      responses:
+        "200":
+          description: La catégorie a été supprimée avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: Deletion successful }
+        "400":
+          description: Erreur dans la requete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: La catégorie n'a pas été trouvée.
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { message: No category with such ID }
+        "500":
+          description: Erreur interne du serveur.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
 
 components:
   securitySchemes:
@@ -279,8 +724,43 @@ components:
         description:
           type: string
           example: Projet X
-
-    ErrorMessage:
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        description:
+          type: string
+          example: "Loyer"
+        amount:
+          type: number
+          example: 800
+        date:
+          type: string
+          format: date
+          example: "2025-08-20"
+        category_id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        receipt_id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        is_recurrent:
+          type: boolean
+          example: true
+        start_date:
+          type: string
+          format: date
+          example: "2025-08-20T12:30:00Z"
+        end_date:
+          type: string
+          format: date
+          example: "2027-04-01T12:30:00Z"
+    Category:
       type: object
       properties:
         message:

@@ -14,12 +14,13 @@ export default (sequelize) => {
                 type: DataTypes.FLOAT,
                 allowNull: false,
             },
-            expense_date: {
+            date: {
                 type: DataTypes.DATE,
                 allowNull: false
             },
             is_recurrent: {
                 type: DataTypes.BOOLEAN,
+                defaultValue: false,
                 allowNull: false
             },
             description: {

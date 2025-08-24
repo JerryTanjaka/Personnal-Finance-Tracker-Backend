@@ -6,8 +6,8 @@ const expenses = express.Router()
 
 expenses.get('/', getAllExpenses)
 expenses.get('/:id', getSpecificExpense)
-expenses.post('/', uploadReceipt.single('receipt_image'), createExpense)
-expenses.put('/:id', uploadReceipt.single('receipt_image'), updateExpense)
+expenses.post('/', uploadReceipt.single('receipt'), createExpense)
+expenses.put('/:id', uploadReceipt.single('receipt'), updateExpense)
 expenses.delete('/:id', deleteExpense)
 
 export default expenses
