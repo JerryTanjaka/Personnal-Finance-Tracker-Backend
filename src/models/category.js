@@ -33,5 +33,7 @@ export default (sequelize) => {
         }
     );
 
+    
     return Category;
+    
 }
