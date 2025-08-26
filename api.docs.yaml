@@ -777,6 +777,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorMessage"
 
+  /user/profile:
+    get:
+      tags:
+        - User
+      responses:
+        "200":
+          description: Retourne quelques informations sur l'utilisateur
+          content:
+            "application/json":
+              schema:
+                type: object
+                example:
+                  {
+                    userInfo:
+                      {
+                        id: "123e4567-e89b-12d3-a456-426614174000",
+                        email: "testtest@test.com",
+                        password: "PasswordExample",
+                        createdAt: "2025-08-20T10:30:00Z",
+                      },
+                    expenseInfo: { "expenseCount": 10, "expenseAmount": 20000 },
+                    categoryInfo: { "customCategory": 5 },
+                  }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -872,7 +896,7 @@ components:
           example: "2025-08-01T12:00:00Z"
     ErrorMessage:
       type: object
-      properties: 
-        error: 
+      properties:
+        error:
           type: string
           example: "An error occurred"
