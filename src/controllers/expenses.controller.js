@@ -89,7 +89,7 @@ const createExpense = async (req, res) => {
             return res.status(400).json({ message: 'Invalid type', error: 'Please choose a valid type' })
         }
 
-        if (amount || isNaN(parseFloat(amount))) {
+        if (!amount || isNaN(parseFloat(amount))) {
             if (req.file) deleteReceipt(req.file.path)
             return res.status(400).json({ message: 'Invalid Amount', error: 'Please input a valid amount' })
         }
