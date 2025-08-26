@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import db from "../models/index.js";
 
-const isUUID = (id) => typeof id != 'string' || id.replaceAll('-', '').length !== 32
+const isNotUUID = (id) => typeof id != 'string' || id.replaceAll('-', '').length !== 32
 
 const getAllCategories = async (req, res) => {
     const userUUID = req.user.id
@@ -35,7 +35,7 @@ const updateCategory = async (req, res) => {
     const userUUID = req.user.id
     try {
         const { id } = req.params
-        if (isUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
+        if (isNotUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
 
         const { name } = req.body
         if (!name) { return res.status(400).json({ message: 'Invalid field', error: 'No name specified' }) }
@@ -56,12 +56,12 @@ const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params
         const { force } = req.query
-        if (isUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
+        if (isNotUUID(id)) { return res.status(400).json({ message: 'Invalid field', error: 'Incorrect ID format' }) }
 
         const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, id: id } } })
         if (!wantedCategory) { return res.status(404).json({ message: 'No category with such ID' }) }
 
-        const categoryExpenseList = db.Expense.findOne({ where: { [Op.and]: { user_id: userUUID, category_id: id } } })
+        const categoryExpenseList = await db.Expense.findOne({ where: { [Op.and]: { user_id: userUUID, category_id: id } } })
         const booleanForce = (String(force).includes("true")) 
         if (categoryExpenseList && !booleanForce) { return res.status(400).json({ message: 'Cannot delete', error: 'Category is still used' }) }
 
