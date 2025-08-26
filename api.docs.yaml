@@ -110,6 +110,65 @@ paths:
         "500":
           description: Erreur serveur
 
+  /user/change-password:
+    post:
+      summary: Changer le mot de passe de l'utilisateur authentifié
+      security:
+        - bearerAuth: []
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [oldPassword, newPassword]
+              properties:
+                oldPassword:
+                  type: string
+                  minLength: 6
+                  example: "oldPassword123"
+                newPassword:
+                  type: string
+                  minLength: 6
+                  example: "newSecret123"
+      responses:
+        "200":
+          description: Mot de passe changé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password changed successfully"
+        "400":
+          description: Requête invalide (données manquantes)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "401":
+          description: Non autorisé (token invalide ou ancien mot de passe incorrect)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
   /income:
     post:
       summary: Créer un revenu
