@@ -68,4 +68,30 @@ const getSummaryBetweenDates = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-export { getMonthlySummary, getSummaryBetweenDates };
+
+const getMonthlyAlerts = async (req, res) => {
+  try {
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const totalIncome = await Income.sum("amount", {
+      where: { income_date: { [Op.between]: [startDate, endDate] } },
+    });
+
+    const totalExpense = await Expense.sum("amount", {
+      where: { date: { [Op.between]: [startDate, endDate] } },
+    });
+
+
+    res.status(200).json({
+      alert,
+      message: alert
+        ? `You've exceeded your monthly budget by $${Math.abs(net).toFixed(2)}`
+        : "You're within your budget this month",
+    });
+  } catch (error) {
+    console.error("Error fetching monthly alerts:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export { getMonthlySummary, getSummaryBetweenDates, getMonthlyAlerts };
