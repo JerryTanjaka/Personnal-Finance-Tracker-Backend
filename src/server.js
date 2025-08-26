@@ -5,6 +5,9 @@ import auth from "./routes/auth.route.js";
 import expenses from "./routes/expenses.route.js";
 import categories from "./routes/categories.route.js";
 import incomeRoute from "./routes/income.route.js";
+import summary from "./routes/summary.route.js";
+
+import changePasswordRoute from "./routes/changePassword.route.js";
 
 import requireAuth from "./middleware/auth.js";
 import swaggerUi from "swagger-ui-express";
@@ -27,7 +30,8 @@ app.use("/api/auth", auth);
 app.use("/api/expenses", requireAuth, expenses)
 app.use("/api/income", incomeRoute);
 app.use("/api/categories", requireAuth, categories)
-
+app.use("/api/summary",requireAuth,summary)
+app.use("/api/user", changePasswordRoute);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {

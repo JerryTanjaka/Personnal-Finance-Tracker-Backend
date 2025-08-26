@@ -34,8 +34,8 @@ export default (sequelize) => {
       tableName: 'users',
       modelName: 'User',
       hooks: {
-        beforeCreate: async (user) => {
-          if (user.password) {
+        beforeSave: async (user) => {
+          if (user.password && user.changed('password')) {
             const saltRounds = 10;
             user.password = await bcrypt.hash(user.password, saltRounds);
           }
