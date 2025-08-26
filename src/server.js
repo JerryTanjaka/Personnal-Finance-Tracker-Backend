@@ -30,6 +30,7 @@ app.use("/api/auth", auth);
 app.use("/api/expenses", requireAuth, expenses)
 app.use("/api/income", incomeRoute);
 app.use("/api/categories", requireAuth, categories)
+app.use("/api/categories", requireAuth, categories)
 app.use("/api/summary",requireAuth,summary)
 app.use("/api/user", changePasswordRoute);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
