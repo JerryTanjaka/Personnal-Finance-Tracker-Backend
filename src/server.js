@@ -6,6 +6,8 @@ import expenses from "./routes/expenses.route.js";
 import categories from "./routes/categories.route.js";
 import incomeRoute from "./routes/income.route.js";
 
+import changePasswordRoute from "./routes/changePassword.route.js";
+
 import requireAuth from "./middleware/auth.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
@@ -27,6 +29,8 @@ app.use("/api/auth", auth);
 app.use("/api/expenses", requireAuth, expenses)
 app.use("/api/income", incomeRoute);
 app.use("/api/categories", requireAuth, categories)
+
+app.use("/api/user", changePasswordRoute);
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
