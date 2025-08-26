@@ -146,11 +146,11 @@ const updateExpense = async (req, res) => {
             return res.status(404).json({ message: 'No match found' })
         }
 
-        if (isNaN(parseFloat(amount))) {
+        if (amount && isNaN(parseFloat(amount))) {
             if (req.file) deleteReceipt(req.file.path)
             return res.status(400).json({ message: 'Invalid Amount', error: 'Amount must be a number' })
         }
-        
+
         if (categoryId) {
             const categoryExists = await db.Category.findOne({ where: { [Op.and]: { id: categoryId, user_id: userUUID } } })
             if (!categoryExists) {
