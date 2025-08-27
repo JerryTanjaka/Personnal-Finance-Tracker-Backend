@@ -5,7 +5,7 @@ import db from "../models/index.js";
 export const getProfileInfo = async (req, res) => {
     const userUUID = req.user?.id
 
-    const userInfo = await db.User.findOne({ where: { id: userUUID } }).catch(rej => res.status(500).json({ message: "Failed to fetch user info", error: rej }))
+    const userInfo = await db.User.findOne({ where: { id: userUUID }, attributes: {exclude: ['password']} }).catch(rej => res.status(500).json({ message: "Failed to fetch user info", error: rej }))
     const expenseInfo = await db.Expense.findAll({
         where: { user_id: userUUID },
         attributes: [
