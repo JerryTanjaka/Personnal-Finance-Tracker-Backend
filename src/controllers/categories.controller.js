@@ -69,7 +69,7 @@ const deleteCategory = async (req, res) => {
         if (categoryExpenseList && !booleanForce) { return res.status(400).json({ message: 'Cannot delete', error: 'Category is still used' }) }
 
         return await wantedCategory.destroy()
-            .then(() => res.status(204).json({ message: 'Deleted category successfully' }))
+            .then(() => res.status(200).json({ message: 'Deleted category successfully' }))
             .catch(rej => res.status(500).json({ message: 'Failed to delete category', err: rej }))
     } catch (err) {
         return res.status(500).json({ message: 'Server error', error: err.message })
