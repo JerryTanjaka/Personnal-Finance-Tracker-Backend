@@ -1,39 +1,38 @@
-import { Model, DataTypes, UUIDV4 } from "sequelize";
-import sequelize from "../config/db.js";
+/** @format */
 
-class Category extends Model { };
+import { DataTypes, Model } from "sequelize";
 
-export default (sequelize) => {
-    Category.init(
-        {
-            id: {
-                type: DataTypes.UUID,
-                defaultValue: sequelize.literal('gen_random_uuid()'),
-                primaryKey: true
-            },
-            name: {
-                type: DataTypes.STRING(255),
-                allowNull: false
-            },
-            is_default: {
-                type: DataTypes.BOOLEAN,
-                allowNull: false
-            },
-            created_at: {
-                type: DataTypes.DATE,
-                allowNull: false,
-                defaultValue: sequelize.literal("NOW()")
-            },
-        },
-        {
-            sequelize,
-            tableName: 'categories',
-            modelName: 'Category',
-            timestamps: false
-        }
-    );
+class Category extends Model {}
 
-    
-    return Category;
-    
-}
+export default sequelize => {
+	Category.init(
+		{
+			id: {
+				type: DataTypes.UUID,
+				defaultValue: sequelize.literal("gen_random_uuid()"),
+				primaryKey: true,
+			},
+			name: {
+				type: DataTypes.STRING(255),
+				allowNull: false,
+			},
+			is_default: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			created_at: {
+				type: DataTypes.DATE,
+				allowNull: false,
+				defaultValue: sequelize.literal("NOW()"),
+			},
+		},
+		{
+			sequelize,
+			tableName: "categories",
+			modelName: "Category",
+			timestamps: false,
+		},
+	);
+
+	return Category;
+};
