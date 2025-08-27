@@ -43,6 +43,9 @@ const updateCategory = async (req, res) => {
         const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, id: id } } })
         if (!wantedCategory) { return res.status(404).json({ message: 'No category with such ID' }) }
 
+        const categoryList = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: name } } } })
+        if (categoryList) { return res.status(400).json({ message: 'Invalid field', error: 'Category already exists' }) }
+        
         return await wantedCategory.update({ name: name })
             .then(resolve => res.status(200).json(resolve))
             .catch(rej => res.status(500).json({ message: 'Failed to update category', err: rej }))
