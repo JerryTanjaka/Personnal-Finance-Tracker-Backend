@@ -59,14 +59,17 @@ const updateCategory = async (req, res) => {
 			return res.status(404).json({ message: "No category with such ID" });
 		}
 
-		return await wantedCategory
-			.update({ name: name })
-			.then(resolve => res.status(200).json(resolve))
-			.catch(rej => res.status(500).json({ message: "Failed to update category", err: rej }));
-	} catch (err) {
-		return res.status(500).json({ message: "Server error", error: err.message });
-	}
-};
+
+        const categoryList = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: name } } } })
+        if (categoryList) { return res.status(400).json({ message: 'Invalid field', error: 'Category already exists' }) }
+        
+        return await wantedCategory.update({ name: name })
+            .then(resolve => res.status(200).json(resolve))
+            .catch(rej => res.status(500).json({ message: 'Failed to update category', err: rej }))
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error', error: err.message })
+    }
+}
 
 const deleteCategory = async (req, res) => {
 	const userUUID = req.user.id;
