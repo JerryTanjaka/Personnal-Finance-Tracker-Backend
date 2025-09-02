@@ -20,7 +20,7 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       amount: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.FLOAT,
         allowNull: false,
       },
       income_date: {
