@@ -1,6 +1,17 @@
-import db from "../models/index.js";
+/** @format */
 
+import { Op } from "sequelize";
+import db from "../models/index.js";
 const Income = db.Income;
+
+const handleNotFound = (res, message = "Income not found") => {
+    return res.status(404).json({ message });
+};
+
+const handleError = (res, error, message = "An error occurred") => {
+    console.error(message, error);
+    return res.status(500).json({ message, error: error.message });
+};
 
 export const getIncomes = async (req, res) => {
     try {
@@ -8,13 +19,13 @@ export const getIncomes = async (req, res) => {
         const where = { user_id: req.user.id };
 
         if (start && end) {
-            where.income_date = { [db.Sequelize.Op.between]: [start, end] };
+            where.income_date = { [Op.between]: [start, end] };
         }
 
         const incomes = await Income.findAll({ where, order: [["income_date", "DESC"]] });
         res.json(incomes);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching incomes", error: error.message });
+        handleError(res, error, "Error fetching incomes");
     }
 };
 
@@ -24,10 +35,10 @@ export const getIncomeById = async (req, res) => {
             where: { id: req.params.id, user_id: req.user.id },
         });
 
-        if (!income) return res.status(404).json({ message: "Income not found" });
+        if (!income) return handleNotFound(res);
         res.json(income);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching income", error: error.message });
+        handleError(res, error, "Error fetching income");
     }
 };
 
@@ -45,43 +56,45 @@ export const createIncome = async (req, res) => {
 
         res.status(201).json(income);
     } catch (error) {
-        res.status(500).json({ message: "Error creating income", error: error.message });
+        handleError(res, error, "Error creating income");
     }
 };
 
 export const updateIncome = async (req, res) => {
     try {
         const { amount, date, source, description } = req.body;
+        const [updatedRows] = await Income.update(
+            { amount, income_date: date, source, description },
+            {
+                where: { id: req.params.id, user_id: req.user.id },
+                returning: true,
+            }
+        );
 
-        const income = await Income.findOne({
-            where: { id: req.params.id, user_id: req.user.id },
-        });
+        if (updatedRows === 0) {
+            return handleNotFound(res);
+        }
 
-        if (!income) return res.status(404).json({ message: "Income not found" });
+        const updatedIncome = await Income.findOne({ where: { id: req.params.id, user_id: req.user.id } });
 
-        if (amount !== undefined) income.amount = amount;
-        if (date !== undefined) income.income_date = date;
-        if (source !== undefined) income.source = source;
-        if (description !== undefined) income.description = description;
-
-        await income.save();
-        res.json(income);
+        res.json(updatedIncome);
     } catch (error) {
-        res.status(500).json({ message: "Error updating income", error: error.message });
+        handleError(res, error, "Error updating income");
     }
 };
 
 export const deleteIncome = async (req, res) => {
     try {
-        const income = await Income.findOne({
+        const deletedRows = await Income.destroy({
             where: { id: req.params.id, user_id: req.user.id },
         });
 
-        if (!income) return res.status(404).json({ message: "Income not found" });
+        if (deletedRows === 0) {
+            return handleNotFound(res);
+        }
 
-        await income.destroy();
         res.json({ message: "Income deleted successfully" });
     } catch (error) {
-        res.status(500).json({ message: "Error deleting income", error: error.message });
+        handleError(res, error, "Error deleting income");
     }
 };
