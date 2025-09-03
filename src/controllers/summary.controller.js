@@ -5,13 +5,16 @@ import db from "../models/index.js";
 
 const { Income, Expense } = db;
 
-const calculateSummary = async (startDate, endDate) => {
+const calculateSummary = async (startDate, endDate, userId) => {
 	const totalIncome = await Income.sum("amount", {
-		where: { income_date: { [Op.between]: [startDate, endDate] } },
+		where: {
+			income_date: { [Op.between]: [startDate, endDate] },
+			user_id: userId,
+		},
 	});
 
 	const totalExpense = await Expense.sum("amount", {
-		where: { date: { [Op.between]: [startDate, endDate] } },
+		where: { date: { [Op.between]: [startDate, endDate] }, user_id: userId },
 	});
 
 	return {
@@ -32,7 +35,8 @@ const getMonthlySummary = async (req, res) => {
 		const startDate = new Date(yearNum, monthNum - 1, 1);
 		const endDate = new Date(yearNum, monthNum, 0, 23, 59, 59);
 
-		const summary = await calculateSummary(startDate, endDate);
+		const userId = req.user.id;
+		const summary = await calculateSummary(startDate, endDate, userId);
 
 		res.status(200).json({
 			month: monthNum,
@@ -56,7 +60,8 @@ const getSummaryBetweenDates = async (req, res) => {
 		const endDate = new Date(end);
 		endDate.setHours(23, 59, 59);
 
-		const summary = await calculateSummary(startDate, endDate);
+		const userId = req.user.id;
+		const summary = await calculateSummary(startDate, endDate, userId);
 
 		res.status(200).json({
 			start,
@@ -75,7 +80,8 @@ const getMonthlyAlerts = async (req, res) => {
 		const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
 		const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-		const { netSavings } = await calculateSummary(startDate, endDate);
+		const userId = req.user.id;
+		const { netSavings } = await calculateSummary(startDate, endDate, userId);
 		const alert = netSavings < 0;
 
 		res.status(200).json({
