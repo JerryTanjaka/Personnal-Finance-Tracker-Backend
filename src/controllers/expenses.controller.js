@@ -5,7 +5,7 @@ import { deleteReceipt } from "../middleware/uploadReceipt.js";
 const isNotUUID = (id) => typeof id != 'string' || id.replaceAll('-', '').length !== 32
 const emptyStringToNull = (object) => {
     for (const field in object) {
-        if (typeof object[field] == 'string' && object[field].trim().length == 0) {
+        if ((typeof object[field] === 'string' && object[field].trim().length === 0)) {
             object[field] = null
         }
     }
@@ -31,7 +31,7 @@ const getAllExpenses = async (req, res) => {
 
         if (errorList.length > 0) return res.status(400).json({ message: 'Invalid field(s)', error: errorList })
 
-        conditions.date = { [Op.between]: [new Date(start || 0), new Date(end || Date.now())] }
+        conditions.date = { [Op.between]: [new Date(start || 0), new Date(end || "30000")] }
         if (category) {
             const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: category } } } })
             if (wantedCategory) conditions.category_id = wantedCategory['id']
@@ -89,9 +89,9 @@ const createExpense = async (req, res) => {
             return res.status(400).json({ message: 'Invalid type', error: 'Please choose a valid type' });
         }
 
-        if (!amount || isNaN(parseFloat(amount))) {
+        if (!amount || (isNaN(parseFloat(amount)) || amount <= 0)) {
             if (req.file) deleteReceipt(req.file.path);
-            return res.status(400).json({ message: 'Invalid Amount', error: 'Please input a valid amount' });
+            return res.status(400).json({ message: 'Invalid Amount', error: 'Please input a valid amount' })
         }
 
         if (!date || String(new Date(date)) === 'Invalid date') {
@@ -168,9 +168,9 @@ const updateExpense = async (req, res) => {
             return res.status(404).json({ message: 'No match found' })
         }
 
-        if (amount && isNaN(parseFloat(amount))) {
+        if (amount && (isNaN(parseFloat(amount)) || amount <= 0)) {
             if (req.file) deleteReceipt(req.file.path)
-            return res.status(400).json({ message: 'Invalid Amount', error: 'Amount must be a number' })
+            return res.status(400).json({ message: 'Invalid Amount', error: 'Amount must be a number and positive' })
         }
 
         if (categoryId) {

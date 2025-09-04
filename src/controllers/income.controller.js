@@ -33,21 +33,23 @@ export const getIncomeById = async (req, res) => {
 };
 
 export const createIncome = async (req, res) => {
-	try {
-		const { amount, date, source, description } = req.body;
+    try {
+        const { amount, date, source, description } = req.body;
 
-		const income = await Income.create({
-			amount,
-			income_date: date,
-			source,
-			description,
-			user_id: req.user.id,
-		});
+        if (amount <= 0) return res.status(400).json({ message: "Invalid amount", error: "Amount cannot be negative" })
 
-		res.status(201).json(income);
-	} catch (error) {
-		res.status(500).json({ message: "Error creating income", error: error.message });
-	}
+        const income = await Income.create({
+            amount,
+            income_date: date,
+            source,
+            description,
+            user_id: req.user.id,
+        });
+
+        res.status(201).json(income);
+    } catch (error) {
+        res.status(500).json({ message: "Error creating income", error: error.message });
+    }
 };
 
 export const updateIncome = async (req, res) => {
@@ -59,11 +61,11 @@ export const updateIncome = async (req, res) => {
 		});
 
 		if (!income) return res.status(404).json({ message: "Income not found" });
-
-		if (amount !== undefined) income.amount = amount;
-		if (date !== undefined) income.income_date = date;
-		if (source !== undefined) income.source = source;
-		if (description !== undefined) income.description = description;
+    
+    if (amount !== undefined && amount > 0) income.amount = amount;
+    if (date !== undefined) income.income_date = date;
+    if (source !== undefined) income.source = source;
+    if (description !== undefined) income.description = description;
 
 		await income.save();
 		res.json(income);
