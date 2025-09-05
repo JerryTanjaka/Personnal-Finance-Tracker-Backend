@@ -28,7 +28,8 @@ const calculateSummary = async (startDate, endDate, userId) => {
 						{ end_date: null }
 					]
 				}
-			]
+			],
+			user_id: userId
 		}
 	});
 
