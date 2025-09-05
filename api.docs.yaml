@@ -823,14 +823,8 @@ paths:
                 type: object
                 example:
                   {
-                    userInfo:
-                      {
-                        id: "123e4567-e89b-12d3-a456-426614174000",
-                        email: "testtest@test.com",
-                        createdAt: "2025-08-20T10:30:00Z",
-                      },
-                    expenseInfo: { "expenseCount": 10, "expenseAmount": 20000 },
-                    categoryInfo: { "customCategory": 5 },
+                    email: "test@test",
+                    createdAt: "2025-08-20T10:30:00Z",
                   }
 
 components:
