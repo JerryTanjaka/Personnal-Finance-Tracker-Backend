@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API pour gérer l'authentification et les revenus des utilisateurs.
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:8080/api
 
 paths:
   /auth/signup:
@@ -776,6 +776,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorMessage"
+
+  /receipts/{idExpense}:
+    get:
+      tags:
+        - Receipts
+      parameters:
+        - name: idExpense
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de la dépense
+      responses:
+        "200":
+          description: Télécharge le recu d'une dépense
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/jpg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
 
   /user/profile:
     get:

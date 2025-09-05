@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 export const signAccessToken = (payload) =>
   jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m',
+    expiresIn: process.env.JWT_ACCESS_EXPIRES || '5h',
   });
 
 export const signRefreshToken = (payload) =>

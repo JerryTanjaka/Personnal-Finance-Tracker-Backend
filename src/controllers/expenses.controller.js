@@ -5,7 +5,7 @@ import { deleteReceipt } from "../middleware/uploadReceipt.js";
 const isNotUUID = (id) => typeof id != 'string' || id.replaceAll('-', '').length !== 32
 const emptyStringToNull = (object) => {
     for (const field in object) {
-        if (typeof object[field] == 'string' && object[field].trim().length == 0) {
+        if ((typeof object[field] === 'string' && object[field].trim().length === 0)) {
             object[field] = null
         }
     }
@@ -31,7 +31,6 @@ const getAllExpenses = async (req, res) => {
 
         if (errorList.length > 0) return res.status(400).json({ message: 'Invalid field(s)', error: errorList })
 
-        conditions.date = { [Op.between]: [new Date(start || 0), new Date(end || Date.now())] }
         if (category) {
             const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: category } } } })
             if (wantedCategory) conditions.category_id = wantedCategory['id']
@@ -41,7 +40,27 @@ const getAllExpenses = async (req, res) => {
         }
 
         const queryAnswer = await db.Expense.findAll({
-            where: { [Op.and]: conditions },
+            where: {
+                [Op.and]: [
+                    conditions,
+                    {
+                        [Op.or]: [
+                            {
+                                date: { [Op.between]: [new Date(start || 0), new Date(end || "30000")] },
+                                is_recurrent: false
+                            },
+                            {
+                                is_recurrent: true,
+                                start_date: { [Op.lte]: new Date(end || "30000") },
+                                [Op.or]: [
+                                    { end_date: { [Op.gte]: new Date(start || 0) } },
+                                    { end_date: null }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
             include: [{
                 association: 'category_fk',
                 attributes: ["name"]
@@ -78,56 +97,78 @@ const getSpecificExpense = async (req, res) => {
 
 const createExpense = async (req, res) => {
     try {
-        const userUUID = req.user.id
-        let { amount, date, categoryId, description, type, startDate, endDate } = emptyStringToNull(req.body)
+        const userUUID = req.user.id;
+        let { amount, date, categoryId, description, type, startDate, endDate } = emptyStringToNull(req.body);
 
-        let is_recurrent = false
+        let is_recurrent = false;
         if (type?.toLowerCase().includes("one-time") || type?.toLowerCase().includes("recurring")) {
-            is_recurrent = ["one-time", "recurring"].indexOf(type.toLowerCase())
+            is_recurrent = ["one-time", "recurring"].indexOf(type.toLowerCase());
         } else {
-            if (req.file) deleteReceipt(req.file.path)
-            return res.status(400).json({ message: 'Invalid type', error: 'Please choose a valid type' })
+            if (req.file) deleteReceipt(req.file.path);
+            return res.status(400).json({ message: 'Invalid type', error: 'Please choose a valid type' });
         }
 
-        if (!amount || isNaN(parseFloat(amount))) {
-            if (req.file) deleteReceipt(req.file.path)
+        if (!amount || (isNaN(parseFloat(amount)) || amount <= 0)) {
+            if (req.file) deleteReceipt(req.file.path);
             return res.status(400).json({ message: 'Invalid Amount', error: 'Please input a valid amount' })
         }
 
-        if (!date || String(new Date(date)) == 'Invalid date') {
-            if (req.file) deleteReceipt(req.file.path)
-            return res.status(400).json({ message: 'Invalid Date', error: 'Invalid expense date' })
+        if (!date || String(new Date(date)) === 'Invalid date') {
+            if (req.file) deleteReceipt(req.file.path);
+            return res.status(400).json({ message: 'Invalid Date', error: 'Invalid expense date' });
         }
 
         if (!is_recurrent) {
-            startDate = null
-            endDate = null
+            startDate = null;
+            endDate = null;
         } else if (!startDate) {
-            if (req.file) deleteReceipt(req.file.path)
-            return res.status(400).json({ message: 'Invalid StartDate', error: 'Recurrent expense must have a valid start date' })
+            if (req.file) deleteReceipt(req.file.path);
+            return res.status(400).json({ message: 'Invalid StartDate', error: 'Recurrent expense must have a valid start date' });
         }
 
         if (categoryId) {
-            const categoryExists = await db.Category.findOne({ where: { [Op.and]: { id: categoryId, user_id: userUUID } } })
+            const categoryExists = await db.Category.findOne({
+                where: {
+                    [Op.and]: [
+                        { id: categoryId },
+                        { [Op.or]: [{ user_id: userUUID }, { is_default: true }] }
+                    ]
+                }
+            });
             if (!categoryExists) {
-                if (req.file) deleteReceipt(req.file.path)
-                return res.status(400).json({ message: 'Invalid Category', error: 'Category does not exist' })
+                if (req.file) deleteReceipt(req.file.path);
+                return res.status(400).json({ message: 'Invalid Category', error: 'Category does not exist' });
             }
         }
 
-        let receipt_id = null
+        // Gestion du reçu
+        let receipt_id = null;
         if (req.file) {
-            receipt_id = req.file.filename.split('.')[0]
-            await db.Receipt.create({ id: receipt_id, file_path: req.file.path, user_id: userUUID })
+            receipt_id = req.file.filename.split('.')[0];
+            await db.Receipt.create({ id: receipt_id, file_path: req.file.path, user_id: userUUID });
         }
 
-        const newExpense = db.Expense.build({ user_id: userUUID, amount, date, category_id: categoryId, description, is_recurrent, start_date: startDate, end_date: endDate, receipt_id })
-        return await newExpense.save().then(() => res.status(201).json(newExpense))
+        // Création de la dépense
+        const newExpense = db.Expense.build({
+            user_id: userUUID,
+            amount,
+            date,
+            category_id: categoryId,
+            description,
+            is_recurrent,
+            start_date: startDate,
+            end_date: endDate,
+            receipt_id
+        });
+
+        return await newExpense.save().then(() => res.status(201).json(newExpense));
+
     } catch (err) {
-        if (req.file) deleteReceipt(req.file.path)
-        return res.status(500).json({ message: 'Server error', error: err.message })
+        if (req.file) deleteReceipt(req.file.path);
+        return res.status(500).json({ message: 'Server error', error: err.message });
     }
-}
+};
+
 
 const updateExpense = async (req, res) => {
     try {
@@ -146,9 +187,9 @@ const updateExpense = async (req, res) => {
             return res.status(404).json({ message: 'No match found' })
         }
 
-        if (amount && isNaN(parseFloat(amount))) {
+        if (amount && (isNaN(parseFloat(amount)) || amount <= 0)) {
             if (req.file) deleteReceipt(req.file.path)
-            return res.status(400).json({ message: 'Invalid Amount', error: 'Amount must be a number' })
+            return res.status(400).json({ message: 'Invalid Amount', error: 'Amount must be a number and positive' })
         }
 
         if (categoryId) {
