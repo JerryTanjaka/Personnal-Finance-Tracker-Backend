@@ -7,7 +7,7 @@ export const getProfileInfo = async (req, res) => {
     const userUUID = req.user?.id
 
     const userInfo = await db.User.findOne({ where: { id: userUUID }, attributes: { exclude: ['password', 'id'] } }).catch(rej => res.status(500).json({ message: "Failed to fetch user info", error: rej }))
-    return res.status(200).json( userInfo )
+    return res.status(200).json(userInfo)
 }
 
 // Delete all user data but keep the user account (emails/password). This removes incomes,
@@ -46,4 +46,14 @@ export const deleteUserData = async (req, res) => {
         console.error('Failed to purge user data', err)
         return res.status(500).json({ message: 'Failed to delete user data', error: err.message })
     }
+}
+
+export async function deleteUserAccount(req, res) {
+    const userUUID = req.user?.id
+    if (!userUUID) return res.status(401).json({ message: 'Unauthorized' })
+
+    await db.User.destroy({ where: { id: userUUID } })
+        .then(() => res.status(200).json({ message: "User deleted successfully" }))
+        .catch(rej => res.status(500).json({ message: "Server error", error: rej.message }))
+    return;
 }
