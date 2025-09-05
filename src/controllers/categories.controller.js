@@ -10,7 +10,7 @@ const getAllCategories = async (req, res) => {
 	try {
 		const categories = await db.Category.findAll({
 			where: {
-				[Op.or]: [{ user_id: userUUID }, { is_default: true }],
+				user_id: userUUID
 			},
 			order: [["name", "ASC"]],
 		});
@@ -60,15 +60,15 @@ const updateCategory = async (req, res) => {
 		}
 
 
-        const categoryList = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: name } } } })
-        if (categoryList) { return res.status(400).json({ message: 'Invalid field', error: 'Category already exists' }) }
-        
-        return await wantedCategory.update({ name: name })
-            .then(resolve => res.status(200).json(resolve))
-            .catch(rej => res.status(500).json({ message: 'Failed to update category', err: rej }))
-    } catch (err) {
-        return res.status(500).json({ message: 'Server error', error: err.message })
-    }
+		const categoryList = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: name } } } })
+		if (categoryList) { return res.status(400).json({ message: 'Invalid field', error: 'Category already exists' }) }
+
+		return await wantedCategory.update({ name: name })
+			.then(resolve => res.status(200).json(resolve))
+			.catch(rej => res.status(500).json({ message: 'Failed to update category', err: rej }))
+	} catch (err) {
+		return res.status(500).json({ message: 'Server error', error: err.message })
+	}
 }
 
 const deleteCategory = async (req, res) => {
