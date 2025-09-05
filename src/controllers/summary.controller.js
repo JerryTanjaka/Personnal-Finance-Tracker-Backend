@@ -14,7 +14,22 @@ const calculateSummary = async (startDate, endDate, userId) => {
 	});
 
 	const totalExpense = await Expense.sum("amount", {
-		where: { date: { [Op.between]: [startDate, endDate] }, user_id: userId },
+		where: {
+			[Op.or]: [
+				{
+					date: { [Op.between]: [new Date(startDate || 0), new Date(endDate || "30000")] },
+					is_recurrent: false
+				},
+				{
+					is_recurrent: true,
+					start_date: { [Op.lte]: new Date(endDate || "30000") },
+					[Op.or]: [
+						{ end_date: { [Op.gte]: new Date(startDate || 0) } },
+						{ end_date: null }
+					]
+				}
+			]
+		}
 	});
 
 	return {

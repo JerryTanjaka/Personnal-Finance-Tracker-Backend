@@ -31,7 +31,6 @@ const getAllExpenses = async (req, res) => {
 
         if (errorList.length > 0) return res.status(400).json({ message: 'Invalid field(s)', error: errorList })
 
-        conditions.date = { [Op.between]: [new Date(start || 0), new Date(end || "30000")] }
         if (category) {
             const wantedCategory = await db.Category.findOne({ where: { [Op.and]: { user_id: userUUID, name: { [Op.iLike]: category } } } })
             if (wantedCategory) conditions.category_id = wantedCategory['id']
@@ -41,7 +40,27 @@ const getAllExpenses = async (req, res) => {
         }
 
         const queryAnswer = await db.Expense.findAll({
-            where: { [Op.and]: conditions },
+            where: {
+                [Op.and]: [
+                    conditions,
+                    {
+                        [Op.or]: [
+                            {
+                                date: { [Op.between]: [new Date(start || 0), new Date(end || "30000")] },
+                                is_recurrent: false
+                            },
+                            {
+                                is_recurrent: true,
+                                start_date: { [Op.lte]: new Date(end || "30000") },
+                                [Op.or]: [
+                                    { end_date: { [Op.gte]: new Date(start || 0) } },
+                                    { end_date: null }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
             include: [{
                 association: 'category_fk',
                 attributes: ["name"]
