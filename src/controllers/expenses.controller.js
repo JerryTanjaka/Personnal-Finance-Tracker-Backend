@@ -131,7 +131,7 @@ const createExpense = async (req, res) => {
                 where: {
                     [Op.and]: [
                         { id: categoryId },
-                        { [Op.or]: [{ user_id: userUUID }, { is_default: true }] }
+                        { user_id: userUUID }
                     ]
                 }
             });

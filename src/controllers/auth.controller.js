@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../models/index.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
+import createDefaultCategory from '../utils/createBaseCategory.js';
 
 const router = Router();
 
@@ -33,6 +34,8 @@ export const registerUser = async (req, res) => {
 
         const user = await db.User.create({ email, password });
         const userTokens = await issueTokens(user);
+
+        await createDefaultCategory(user.id)
 
         return res
             .status(201)
