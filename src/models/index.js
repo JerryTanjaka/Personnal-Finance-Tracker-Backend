@@ -19,7 +19,7 @@ db.Income = incomeFactory(sequelize);
 
 // Associations
 db.User.hasMany(db.RefreshToken, { foreignKey: 'user_id', as: 'refresh_tokens' });
-db.RefreshToken.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+db.RefreshToken.belongsTo(db.User, { foreignKey: 'user_id', as: 'user', onDelete: 'CASCADE' });
 
 db.User.hasMany(db.Income, { foreignKey: 'user_id', as: 'incomes' });
 db.Income.belongsTo(db.User, { foreignKey: 'user_id', as: 'user', onDelete: 'CASCADE' });
@@ -46,13 +46,13 @@ db.Expense.belongsTo(db.Category, {
 db.User.hasMany(db.Category, {
     foreignKey: { name: 'user_id', allowNull: true },
     sourceKey: 'id',
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
 });
 
 // Receipt associations
-db.Receipt.belongsTo(db.User, { foreignKey: {name:'user_id', allowNull: false}, targetKey: 'id', as: 'user_fk', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-db.Receipt.hasOne(db.Expense, { foreignKey: {name:'receipt_id', allowNull: true}, sourceKey: 'id', as: 'receipt_fk', onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+db.Receipt.belongsTo(db.User, { foreignKey: { name: 'user_id', allowNull: false }, targetKey: 'id', as: 'user_fk', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+db.Receipt.hasOne(db.Expense, { foreignKey: { name: 'receipt_id', allowNull: true }, sourceKey: 'id', as: 'receipt_fk', onDelete: 'SET NULL', onUpdate: 'CASCADE' })
 
 
 await sequelize.sync()
