@@ -779,6 +779,8 @@ paths:
 
   /receipts/{idExpense}:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - Receipts
       parameters:
@@ -809,6 +811,22 @@ paths:
               schema:
                 type: string
                 format: binary
+
+  /user/profile:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      responses:
+        "200":
+          description: Retourne quelques informations sur l'utilisateur
+          content:
+            "application/json":
+              schema:
+                type: object
+                example:
+                  { email: "test@test", createdAt: "2025-08-20T10:30:00Z" }
 
 components:
   securitySchemes:
