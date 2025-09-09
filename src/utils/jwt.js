@@ -1,17 +1,18 @@
 import jwt from 'jsonwebtoken';
 
 export const signAccessToken = (payload) =>
-  jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: process.env.JWT_ACCESS_EXPIRES || '5h',
-  });
+    jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
+        expiresIn: process.env.JWT_ACCESS_EXPIRES || '5h',
+    });
 
-export const signRefreshToken = (payload) =>
-  jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: process.env.JWT_REFRESH_EXPIRES || '7d',
-  });
+export const signRefreshToken = (payload, options) =>
+    jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+        expiresIn: process.env.JWT_REFRESH_EXPIRES || '7d',
+        ...options,
+    });
 
 export const verifyAccessToken = (token) =>
-  jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
 export const verifyRefreshToken = (token) =>
-  jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    jwt.verify(token, process.env.JWT_REFRESH_SECRET);
