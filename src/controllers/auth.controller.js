@@ -2,8 +2,10 @@ import { Router } from 'express';
 import db from '../models/index.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import createDefaultCategory from '../utils/createBaseCategory.js';
+import { OAuth2Client } from 'google-auth-library';
 
 const router = Router();
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Utils
 const issueTokens = async (user, rememberMe) => {
@@ -59,6 +61,40 @@ export const login = async (req, res) => {
         return res.json({ user: { id: user.id, email: user.email }, ...tokens });
     } catch (e) {
         return res.status(500).json({ message: 'Server Error', error: e.message });
+    }
+};
+
+// Google Login
+export const googleLogin = async (req, res) => {
+    const { access_token } = req.body;
+
+    if (!access_token) {
+        return res.status(400).json({ message: 'Google access token is required' });
+    }
+
+    try {
+        const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${access_token}` },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch user info from Google');
+        }
+
+        const data = await response.json();
+        const { email } = data;
+
+        let user = await db.User.findOne({ where: { email } });
+
+        if (!user) {
+            user = await db.User.create({ email, password: Math.random().toString(36).slice(-8) });
+            await createDefaultCategory(user.id);
+        }
+
+        const tokens = await issueTokens(user, true);
+        return res.json({ user: { id: user.id, email: user.email }, ...tokens });
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid Google token' });
     }
 };
 
