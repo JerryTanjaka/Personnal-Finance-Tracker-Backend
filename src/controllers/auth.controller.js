@@ -1,28 +1,13 @@
-import { Router } from 'express';
 import db from '../models/index.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import createDefaultCategory from '../utils/createBaseCategory.js';
 import { OAuth2Client } from 'google-auth-library';
+import cookieParser from 'cookie-parser';
+import express from "express";
+import { issueTokens } from '../utils/token.js'
 
-const router = Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-// Utils
-const issueTokens = async (user, rememberMe) => {
-    const accessToken = signAccessToken({ sub: user.id, email: user.email });
-    const refreshToken = signRefreshToken({ sub: user.id }, { expiresIn: rememberMe ? '30d' : process.env.JWT_REFRESH_EXPIRES || '7d' });
-
-    const decoded = verifyRefreshToken(refreshToken);
-    const expires_at = new Date(decoded.exp * 1000);
-
-    await db.RefreshToken.create({
-        token: refreshToken,
-        userId: user.id,
-        expires_at,
-    });
-
-    return { accessToken, refreshToken };
-};
+const signCookie = cookieParser(process.env.COOKIE_SECRET)
 
 // Register
 export const registerUser = async (req, res) => {
@@ -48,7 +33,7 @@ export const registerUser = async (req, res) => {
 };
 
 // Login
-export const login = async (req, res) => {
+export const login = express().use(signCookie, async (req, res) => {
     try {
         const { email, password, rememberMe } = req.body;
         const user = await db.User.findOne({ where: { email } });
@@ -58,14 +43,17 @@ export const login = async (req, res) => {
         if (!ok) return res.status(401).json({ message: 'Invalid Credentials' });
 
         const tokens = await issueTokens(user, rememberMe);
-        return res.json({ user: { id: user.id, email: user.email }, ...tokens });
+        return res.status(200)
+            .cookie('access_token', `Bearer ${tokens.accessToken}`, { signed: true })
+            .cookie('refresh_token', `Bearer ${tokens.refreshToken}`, { signed: true, maxAge: rememberMe ? (1000 * 60 * 60 * 24 * 30) : null })
+            .json({ user: { id: user.id, email: user.email } });
     } catch (e) {
         return res.status(500).json({ message: 'Server Error', error: e.message });
     }
-};
+});
 
 // Google Login
-export const googleLogin = async (req, res) => {
+export const googleLogin = express().use(signCookie, async (req, res) => {
     const { access_token } = req.body;
 
     if (!access_token) {
@@ -92,11 +80,15 @@ export const googleLogin = async (req, res) => {
         }
 
         const tokens = await issueTokens(user, true);
-        return res.json({ user: { id: user.id, email: user.email }, ...tokens });
+        return res.status(200)
+            .cookie('access_token', `Bearer ${tokens.accessToken}`, { signed: true })
+            .cookie('refresh_token', `Bearer ${tokens.refreshToken}`, { signed: true, maxAge: (1000 * 60 * 60 * 24 * 30) })
+            .json({ user: { id: user.id, email: user.email } });
     } catch (error) {
+        console.log(error.message)
         return res.status(401).json({ message: 'Invalid Google token' });
     }
-};
+});
 
 // Return authenticated user's profile
 export const getProfile = async (req, res) => {
