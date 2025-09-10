@@ -2,8 +2,8 @@ import { verifyAccessToken } from '../utils/jwt.js';
 import express from "express";
 import cookieParser from 'cookie-parser';
 
-const requireAuth = express().use(cookieParser(), (req, res, next) => {
-  const auth = cookieParser.signedCookie(req.cookies["access_token"], process.env.COOKIE_SECRET) || null;
+const requireAuth = express().use(cookieParser(process.env.COOKIE_SECRET), (req, res, next) => {
+  const auth = cookieParser.signedCookie(req.signedCookies["access_token"], process.env.COOKIE_SECRET) || null;
   const [scheme, token] = auth?.split(' ') || [null, null];
 
   if (scheme !== 'Bearer' || !token) {
