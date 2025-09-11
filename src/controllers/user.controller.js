@@ -38,7 +38,6 @@ export const deleteUserData = async (req, res) => {
             await db.Income.destroy({ where: { user_id: userUUID }, transaction: t })
             await db.Receipt.destroy({ where: { user_id: userUUID }, transaction: t })
             await db.Category.destroy({ where: { user_id: userUUID }, transaction: t })
-            await db.RefreshToken.destroy({ where: { user_id: userUUID }, transaction: t })
         })
 
         return res.status(200).json({ message: 'User data deleted successfully' })
