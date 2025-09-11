@@ -7,7 +7,7 @@ import express from "express";
 import { issueTokens } from '../utils/token.js'
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const signCookie = cookieParser(process.env.COOKIE_SECRET) || null
+const signCookie = cookieParser(process.env.COOKIE_SECRET || 'set_a_cookie_secret_please')
 const accessCookieMaxAge = 1000 * 60 * (parseFloat(process.env.COOKIE_ACCESS_EXPIRES || 45))
 
 // Register
@@ -92,7 +92,7 @@ export const googleLogin = express().use(signCookie, async (req, res) => {
 });
 
 export const refreshLogin = express().use(signCookie, async (req, res) => {
-    const refresh_token = cookieParser.signedCookie(req.signedCookies["refresh_token"], process.env.COOKIE_SECRET)?.split(" ")[1] || null
+    const refresh_token = cookieParser.signedCookie(req.signedCookies["refresh_token"], process.env.COOKIE_SECRET || 'set_a_cookie_secret_please')?.split(" ")[1] || null
     if (!refresh_token) return res.status(401).json({ message: "No refresh token found" })
 
     try {
