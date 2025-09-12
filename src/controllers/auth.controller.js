@@ -92,7 +92,7 @@ export const changePassword = async (req, res) => {
         if (!ok) return res.status(401).json({ message: 'Old password incorrect' });
         user.password = newPassword;
         await user.save();
-        return res.status(200).json({ message: 'Password changed successfully' });
+        return res.status(200).json({ message: 'Password changed successfully .' });
     } catch (e) {
         return res.status(500).json({ message: 'Server Error', error: e.message });
     }
