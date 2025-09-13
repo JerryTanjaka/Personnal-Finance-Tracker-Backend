@@ -31,16 +31,21 @@ const PORT = process.env.PORT || 8080;
 const app = express();
 
 app.use(
-	cors({
-		origin: ["http://localhost:5173", "https://personnal-finance-tracker-frontend.vercel.app"],
-		credentials: true,
-	}),
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://personnal-finance-tracker-frontend.vercel.app",
+    ],
+    credentials: true,
+  })
 );
-
-app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use(express.json());
 
+
+app.use(cookieParser(process.env.COOKIE_SECRET || "set_a_cookie_secret"));
+
+// Routes
 app.use("/api/auth", auth);
 app.use("/api/expenses", requireAuth, expenses);
 app.use("/api/incomes", incomeRoute);
@@ -49,8 +54,9 @@ app.use("/api/summary", requireAuth, summary);
 app.use("/api/receipts", requireAuth, receipts);
 app.use("/api/user", changePasswordRoute);
 
+// Docs Swagger
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {
-	console.log(`✅ Server is listening on port ${PORT}`);
+  console.log(`✅ Server is listening on port ${PORT}`);
 });

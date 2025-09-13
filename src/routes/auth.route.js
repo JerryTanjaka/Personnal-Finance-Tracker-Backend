@@ -1,10 +1,18 @@
 /** @format */
 
 import express from "express";
-import { getProfile, googleLogin, login, refreshLogin, registerUser, signCookie } from "../controllers/auth.controller.js";
+import {
+  getProfile,
+  googleLogin,
+  login,
+  refreshLogin,
+  registerUser,
+  signCookie,
+} from "../controllers/auth.controller.js";
 import requireAuth from "../middleware/auth.js";
 
 const auth = express.Router();
+
 
 auth.use(signCookie);
 

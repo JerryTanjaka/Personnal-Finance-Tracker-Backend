@@ -3,19 +3,19 @@ import { OAuth2Client } from "google-auth-library";
 import { issueTokens } from "../utils/token.js";
 import { verifyAccessToken, verifyRefreshToken } from "../utils/jwt.js";
 import createDefaultCategory from "../utils/createBaseCategory.js";
+import cookieParser from "cookie-parser";
 
-// Durée cookie access
-const accessCookieMaxAge =
-  1000 * 60 * (parseFloat(process.env.COOKIE_ACCESS_EXPIRES || 45));
+// --- Cookie access ---
+export const signCookie = cookieParser(process.env.COOKIE_SECRET || 'set_a_cookie_secret');
+
+const accessCookieMaxAge = 1000 * 60 * (parseFloat(process.env.COOKIE_ACCESS_EXPIRES || 45));
 
 // --- Register ---
 export const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
-      return res
-        .status(400)
-        .json({ message: "email & password required" });
+      return res.status(400).json({ message: "email & password required" });
 
     const exists = await db.User.findOne({ where: { email } });
     if (exists)
@@ -31,9 +31,7 @@ export const registerUser = async (req, res) => {
       ...userTokens,
     });
   } catch (e) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: e.message });
+    return res.status(500).json({ message: "Server Error", error: e.message });
   }
 };
 
@@ -58,17 +56,12 @@ export const login = async (req, res) => {
       .cookie("refresh_token", `Bearer ${tokens.refreshToken}`, {
         signed: true,
         maxAge:
-          1000 *
-          60 *
-          60 *
-          24 *
+          1000 * 60 * 60 * 24 *
           (rememberMe ? parseFloat(process.env.COOKIE_REFRESH_EXPIRES || 7) : 0),
       })
       .json({ user: { id: user.id, email: user.email } });
   } catch (e) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: e.message });
+    return res.status(500).json({ message: "Server Error", error: e.message });
   }
 };
 
@@ -143,9 +136,7 @@ export const refreshLogin = async (req, res) => {
     return res.status(401).json({ message: "Refresh token is expired" });
   } catch (error) {
     console.log(error.message);
-    return res
-      .status(500)
-      .json({ message: "Failed to check refresh token" });
+    return res.status(500).json({ message: "Failed to check refresh token" });
   }
 };
 
@@ -164,9 +155,7 @@ export const getProfile = async (req, res) => {
       createdAt: user.createdAt,
     });
   } catch (e) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: e.message });
+    return res.status(500).json({ message: "Server Error", error: e.message });
   }
 };
 
@@ -177,9 +166,7 @@ export const changePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
     if (!oldPassword || !newPassword)
-      return res
-        .status(400)
-        .json({ message: "Old and new password required" });
+      return res.status(400).json({ message: "Old and new password required" });
 
     const user = await db.User.findOne({ where: { id: userId } });
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -190,12 +177,8 @@ export const changePassword = async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    return res
-      .status(200)
-      .json({ message: "Password changed successfully." });
+    return res.status(200).json({ message: "Password changed successfully." });
   } catch (e) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: e.message });
+    return res.status(500).json({ message: "Server Error", error: e.message });
   }
 };
