@@ -37,8 +37,9 @@ app.use(
 	}),
 );
 
+app.use(cookieParser(process.env.COOKIE_SECRET));
+
 app.use(express.json());
-app.use(cookieParser());
 
 app.use("/api/auth", auth);
 app.use("/api/expenses", requireAuth, expenses);
