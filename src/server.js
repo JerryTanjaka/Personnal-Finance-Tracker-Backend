@@ -21,10 +21,22 @@ const __dirname = path.dirname(__filename);
 
 const swaggerDocument = YAML.load(path.join(__dirname, "../api.docs.yaml"));
 
-const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
+import express from "express";
+import cors from "cors";
+
+const app = express();
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://personnal-finance-tracker-frontend.vercel.app", 
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/api/auth", auth);
