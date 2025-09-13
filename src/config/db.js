@@ -25,6 +25,7 @@ if (process.env.DATABASE_URL) {
 		dialect: "postgres",
 		logging: false,
 	});
-}
 
+}
+//comment
 export default sequelize;
