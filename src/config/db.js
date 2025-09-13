@@ -12,10 +12,7 @@ if (process.env.DATABASE_URL) {
 		dialect: "postgres",
 		logging: false,
 		dialectOptions: {
-			ssl: {
-				require: true,
-				rejectUnauthorized: false,
-			},
+		
 		},
 	});
 } else {
@@ -27,5 +24,6 @@ if (process.env.DATABASE_URL) {
 	});
 
 }
-//comment
 export default sequelize;
+
+
