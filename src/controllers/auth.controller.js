@@ -121,3 +121,22 @@ export const getProfile = async (req, res) => {
     return res.status(500).json({ message: 'Server Error', error: e.message });
   }
 };
+export const changePassword = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { oldPassword, newPassword } = req.body;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ message: 'Old and new password required' });
+        }
+        const user = await db.User.findOne({ where: { id: userId } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        const ok = await user.checkPassword(oldPassword);
+        if (!ok) return res.status(401).json({ message: 'Old password incorrect' });
+        user.password = newPassword;
+        await user.save();
+        return res.status(200).json({ message: 'Password changed successfully .' });
+    } catch (e) {
+        return res.status(500).json({ message: 'Server Error', error: e.message });
+    }
+};
