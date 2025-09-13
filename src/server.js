@@ -23,9 +23,6 @@ const swaggerDocument = YAML.load(path.join(__dirname, "../api.docs.yaml"));
 
 const PORT = process.env.PORT || 8080;
 
-import express from "express";
-import cors from "cors";
-
 const app = express();
 
 app.use(
@@ -37,7 +34,6 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
 
 app.use("/api/auth", auth);
 app.use("/api/expenses", requireAuth, expenses)
