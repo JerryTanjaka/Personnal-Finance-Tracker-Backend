@@ -11,6 +11,7 @@ const requireAuth = (req, res, next) => {
   try {
     const payload = verifyAccessToken(token);
     req.user = { id: payload.sub };
+    console.log(req.signedCookies)
     next();
   } catch (e) {
     return res.status(401).json({ message: "Token invalide ou expiré" });
