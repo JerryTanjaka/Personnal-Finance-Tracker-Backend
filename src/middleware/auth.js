@@ -1,7 +1,7 @@
 import { verifyAccessToken } from "../utils/jwt.js";
 
 const requireAuth = (req, res, next) => {
-  const auth = req.signedCookies["access_token"] || null;
+  const auth = req.cookies["access_token"] || null;
   const [scheme, token] = auth?.split(" ") || [null, null];
 
   if (scheme !== "Bearer" || !token) {
@@ -11,7 +11,7 @@ const requireAuth = (req, res, next) => {
   try {
     const payload = verifyAccessToken(token);
     req.user = { id: payload.sub };
-    console.log(req.signedCookies)
+    console.log("✅ Cookie reçu :", req.cookies);
     next();
   } catch (e) {
     return res.status(401).json({ message: "Token invalide ou expiré" });
